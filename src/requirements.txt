@@ -1,0 +1,5 @@
+transformers
+torchaudio
+sentencepiece
+pydub
+openai-whisper

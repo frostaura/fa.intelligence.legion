@@ -1,0 +1,18 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "jupyter.jupyterServerType": "local",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.ipynb_checkpoints": true,
+        "**/.vscode": true,
+        "**/__pycache__": true,
+        "*.egg*/**": true,
+        "build/**": true,
+        "dist/**": true,
+        "**/examples/**/*.csv": true
+    },
+    "python.analysis.extraPaths": [
+        "./components"
+    ]
+}
