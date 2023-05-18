@@ -14,7 +14,7 @@ The autonomous general purpose, multi-modal agent with a Telegram bot interface.
 ## Getting Started
 ### Requirements
 - [Install Mini Conda](https://docs.conda.io/en/latest/miniconda.html)
-### Setup
+### Setup for Development
 In the root of the project, open a terminal and create a conda environment for Zeus to run in with the dependencies it needs.
 ```bash
 conda create --name zeus python=3.8
@@ -30,6 +30,11 @@ python -m pip install -r requirements.txt
 Finally, run the Zeus program.
 ```bash
 python src/app.py
+```
+### Just Run Zeus
+For this option, [Docker](https://docs.docker.com/get-docker/) should be installed and running on the host computer then, in the root of the project, open a terminal and create a conda environment for Zeus to run in with the dependencies it needs.
+```bash
+docker-compose up
 ```
 
 ## Documentation

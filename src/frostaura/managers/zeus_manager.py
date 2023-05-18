@@ -3,7 +3,7 @@
 class IZeusManager:
     '''Component to perform functions related to managing Zeus.'''
 
-    def run(self):
+    def run(self) -> None:
         '''Initialize the Zeus program.'''
 
         raise NotImplementedError()

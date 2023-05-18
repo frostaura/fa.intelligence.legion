@@ -15,7 +15,7 @@ class TelegramZeusManager(IZeusManager):
     def __exit__(self, exc_type, exc_value, t_b):
         pass
 
-    def run(self):
+    def run(self) -> None:
         '''Initialize the Zeus program.'''
 
         raise NotImplementedError()
