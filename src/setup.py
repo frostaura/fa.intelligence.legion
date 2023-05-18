@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).parent
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 DESCRIPTION = 'FrostAura Zeus is an autonomous general purpose, multi-modal agent.'
 LONG_DESCRIPTION = DESCRIPTION #(ROOT_DIR / '../README.md').read_text()
 
