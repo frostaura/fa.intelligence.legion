@@ -1,5 +1,5 @@
 # fa.intelligence.zeus
-
+![Picture of Zeus](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
 ## Description
 The autonomous general purpose, multi-modal agent.
 
