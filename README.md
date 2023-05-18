@@ -8,6 +8,8 @@ The autonomous general purpose, multi-modal agent with a Telegram bot interface.
 | --- | --- | --- |
 | FrostAura Zeus Pipeline | [![Package FrostAura Zeus Workflow](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/package_zeus_workflow.yml/badge.svg)](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/package_zeus_workflow.yml) | GitHub Actions
 | FrostAura Zeus PIP Package | [![PyPI version](https://badge.fury.io/py/frostaura.intelligence.zeus.svg)](https://badge.fury.io/py/frostaura.intelligence.zeus) | PYPI
+| FrostAura Zeus Containerization | [![Containerization Workflow](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/containerization_workflow.yml/badge.svg)](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/containerization_workflow.yml) | GitHub Actions
+| FrostAura Zeus Docker | [![Docker Badge](https://dockeri.co/image/frostaura/zeus)](https://dockeri.co/image/frostaura/bifrost) | Docker Hub
 
 ## Getting Started
 ### Requirements
