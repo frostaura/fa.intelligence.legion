@@ -1,11 +1,13 @@
 # fa.intelligence.zeus
+
 ## Description
 The autonomous general purpose, multi-modal agent.
 
 ## Status
 | Project | Status | Platform
 | --- | --- | --- |
-| FrostAura Zeus PIP Package | [![Package FrostAura Zeus Workflow](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/package_zeus_workflow.yml/badge.svg)](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/package_zeus_workflow.yml) | GitHub Actions
+| FrostAura Zeus Pipeline | [![Package FrostAura Zeus Workflow](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/package_zeus_workflow.yml/badge.svg)](https://github.com/faGH/fa.intelligence.zeus/actions/workflows/package_zeus_workflow.yml) | GitHub Actions
+| FrostAura Zeus PIP Package | [![PyPI version](https://badge.fury.io/py/frostaura.intelligence.zeus.svg)](https://badge.fury.io/py/frostaura.intelligence.zeus) | PYPI
 
 ## Getting Started
 In the root of the project, open a terminal and create a conda environment for Zeus to run in with the dependencies it needs.
@@ -15,6 +17,10 @@ conda create --name zeus python=3.8
 Now let's activate the environment.
 ```bash
 conda activate zeus
+```
+Install the Dependencies Into The Environment
+```
+python -m pip install -r requirements.txt
 ```
 Finally, run the Zeus program.
 ```bash
