@@ -1,7 +1,7 @@
 # fa.intelligence.zeus
 ![Picture of Zeus](https://github.com/faGH/fa.intelligence.zeus/blob/main/src/icon.png?raw=true)
 ## Description
-The autonomous general purpose, multi-modal agent.
+The autonomous general purpose, multi-modal agent with a Telegram bot interface.
 
 ## Status
 | Project | Status | Platform
@@ -27,7 +27,7 @@ python -m pip install -r requirements.txt
 ```
 Finally, run the Zeus program.
 ```bash
-python zeus_manager.py
+python src/app.py
 ```
 
 ## Documentation

@@ -1,0 +1,8 @@
+version: '3'
+services:
+  zeus:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    environment:
+      - TELEGRAM_BOT_TOKEN=https://www.toptal.com/python/telegram-bot-tutorial-python
