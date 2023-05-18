@@ -32,7 +32,7 @@ Finally, run the Zeus program.
 python src/app.py
 ```
 ### Just Run Zeus
-For this option, [Docker](https://docs.docker.com/get-docker/) should be installed and running on the host computer then, in the root of the project, open a terminal and create a conda environment for Zeus to run in with the dependencies it needs.
+For this option, [Docker](https://docs.docker.com/get-docker/) should be installed and running on the host computer then, in the root of the project, open a terminal and start Zeus using Docker Compose via a single command.
 ```bash
 docker-compose up
 ```
