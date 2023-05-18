@@ -10,6 +10,9 @@ The autonomous general purpose, multi-modal agent.
 | FrostAura Zeus PIP Package | [![PyPI version](https://badge.fury.io/py/frostaura.intelligence.zeus.svg)](https://badge.fury.io/py/frostaura.intelligence.zeus) | PYPI
 
 ## Getting Started
+### Requirements
+- [Install Mini Conda](https://docs.conda.io/en/latest/miniconda.html)
+### Setup
 In the root of the project, open a terminal and create a conda environment for Zeus to run in with the dependencies it needs.
 ```bash
 conda create --name zeus python=3.8
