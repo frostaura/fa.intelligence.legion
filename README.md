@@ -1,7 +1,7 @@
 # fa.intelligence.zeus
 ![Picture of Zeus](https://github.com/faGH/fa.intelligence.zeus/blob/main/src/icon.png?raw=true)
 ## Description
-The autonomous general purpose, multi-modal agent with a Telegram bot interface.
+An autonomous general purpose, multi-modal agent with a Telegram bot interface.
 
 ## Status
 | Project | Status | Platform
