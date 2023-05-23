@@ -3,26 +3,26 @@
 namespace FrostAura.Intelligence.Iluvatar.Shared.Models.Config
 {
     /// <summary>
-    /// The Pinecone API configuration model.
+    /// The OpenAI API configuration model.
     /// </summary>
     [DebuggerDisplay("{ApiEndpoint}")]
-	public class PineconeConfig
+	public class OpenAIConfig
 	{
 		/// <summary>
-		/// The Pinecone region / environment.
+		/// The API endpoint to use as the root.
 		/// </summary>
-		public string Environment { get; set; }
+		public string ApiEndpoint { get; set; }
         /// <summary>
         /// The API key to use to auth.
         /// </summary>
         public string ApiKey { get; set; }
         /// <summary>
-        /// The name of the index to use.
+        /// The model name of the completion model to use.
         /// </summary>
-        public string IndexName { get; set; }
+        public string ModelName { get; set; }
         /// <summary>
-        /// The namespace to persist memories to and read from.
+        /// The model name of the embedding model to use.
         /// </summary>
-        public string Namespace { get; set; }
+        public string EmbeddingModelName { get; set; }
     }
 }

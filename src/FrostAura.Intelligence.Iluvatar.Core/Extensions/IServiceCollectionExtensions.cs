@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using FrostAura.Intelligence.Iluvatar.Core.Extensions.Cognitive;
+using FrostAura.Intelligence.Iluvatar.Core.Skills;
+using FrostAura.Intelligence.Iluvatar.Core.Skills.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FrostAura.Intelligence.Iluvatar.Shared.Extensions
@@ -13,18 +16,33 @@ namespace FrostAura.Intelligence.Iluvatar.Shared.Extensions
         /// </summary>
         /// <param name="serviceCollection">The DI service collection.</param>
         /// <returns>The DI service collection.</returns>
-        public static IServiceCollection AddSharedConfiguration(this IServiceCollection serviceCollection, IConfigurationRoot configuration)
+        public static IServiceCollection AddCoreConfiguration(this IServiceCollection serviceCollection, IConfigurationRoot configuration)
 		{
 			return serviceCollection;
         }
 
         /// <summary>
-        /// Register shared services to the DI service collection.
+        /// Register core services to the DI service collection.
         /// </summary>
         /// <param name="serviceCollection">The DI service collection.</param>
         /// <returns>The DI service collection.</returns>
-        public static IServiceCollection AddSharedServices(this IServiceCollection serviceCollection, IConfigurationRoot configuration)
+        public static IServiceCollection AddCoreServices(this IServiceCollection serviceCollection, IConfigurationRoot configuration)
         {
+            var types = typeof(BaseSkill)
+                .Assembly
+                .GetAllSkillTypesInAssembly()
+                .ToList();
+
+            foreach (var type in types)
+            {
+                serviceCollection.AddSingleton(type);
+
+                if (type != typeof(PlannerSkill))
+                {
+                    serviceCollection.AddSingleton(typeof(BaseSkill), type);
+                }
+            }
+
             return serviceCollection;
         }
     }
