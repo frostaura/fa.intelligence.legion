@@ -7,7 +7,7 @@ An autonomous general purpose, multi-modal agent with a Telegram bot interface.
 | Project | Status | Platform
 | --- | --- | --- |
 | FrostAura Iluvatar Containerization | [![Containerization Workflow](https://github.com/faGH/fa.intelligence.iluvatar/actions/workflows/containerization_workflow.yml/badge.svg)](https://github.com/faGH/fa.intelligence.iluvatar/actions/workflows/containerization_workflow.yml) | GitHub Actions
-| FrostAura Iluvatar Docker | [![Docker Badge](https://dockeri.co/image/frostaura/iluvatar)](https://dockeri.co/image/frostaura/iluvatar) | Docker Hub
+| FrostAura Iluvatar Docker | [![Docker Badge](https://dockeri.co/image/frostaura/iluvatar)](https://dockeri.co/image/frostaura/iluvatar) | Docker Hub 
 
 ## Getting Started
 ### Requirements for Development
