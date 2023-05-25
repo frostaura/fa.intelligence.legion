@@ -18,6 +18,7 @@ For this option, [Docker](https://docs.docker.com/get-docker/) should be install
 ```bash
 docker-compose up
 ```
+Ensure that you set the required variables in order for the docker-compose to work. See the [docker-compose.yml](https://github.com/faGH/fa.intelligence.iluvatar/blob/main/docker-compose.yml) file for more.
 
 ## Documentation
 | Content | Description
