@@ -37,5 +37,5 @@ jobs:
       with:
         destination_container_repo: frostaura/${{ vars.PROJECT_IDENTITY }}
         provider: dockerhub
-        short_description: 'FrostAura Iluvatar is an autonomous general purpose, multi-modal agent with a Telegram bot interface.'
+        short_description: 'An autonomous general purpose, multi-modal agent with a Telegram bot interface.'
         readme_file: 'README.md'
