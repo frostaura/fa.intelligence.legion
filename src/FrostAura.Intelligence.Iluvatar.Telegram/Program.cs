@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FrostAura.Intelligence.Iluvatar.Shared.Models.Config;
 using FrostAura.Intelligence.Iluvatar.Telegram.Managers;
 using FrostAura.Intelligence.Iluvatar.Shared.Extensions;
 
@@ -8,6 +7,7 @@ var tokenSource = new CancellationTokenSource();
 var services = new ServiceCollection();
 var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.development.json", optional: true)
     .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}.json", optional: true)
     .AddEnvironmentVariables()
     .Build();
@@ -34,12 +34,17 @@ try
     {
         await host.RunAsync(tokenSource.Token);
 
-        Console.ReadLine();
-        Console.WriteLine("Shutting down the host.");
+        while (true)
+        {
+            Console.ReadLine();
+        }
     }
 
 }
 catch (Exception ex)
 {
     tokenSource.Cancel();
+    throw;
 }
+
+Console.WriteLine("Shutting down the host.");

@@ -1,21 +1,20 @@
-# Use the official Anaconda base image with Python 3.8
-FROM continuumio/miniconda3:latest
-
-# Set the working directory inside the container
+# Start with the .NET SDK image.
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# Set the working directory.
 WORKDIR /app
-
-# Copy the source code into the container
+# Copy the source code.
 COPY ./src .
-
-# Create a new conda environment
-RUN conda create --name zeus python=3.8
-
-# Activate the conda environment
-RUN echo "source activate zeus" >> ~/.bashrc
-SHELL ["/bin/bash", "--login", "-c"]
-
-# Install pip dependencies inside the conda environment
-RUN conda run --name zeus pip install -r requirements.txt
-
-# Set the entrypoint to run the zeus_manager.py app in the conda environment
-ENTRYPOINT ["conda", "run", "--name", "zeus", "python", "/app/app.py"]
+# Restore dependencies.
+RUN dotnet restore
+# Build the application.
+RUN dotnet build -c Release --no-restore
+# Publish the application.
+RUN dotnet publish -c Release --no-build -o /app/publish
+# Start with a smaller runtime image.
+FROM mcr.microsoft.com/dotnet/runtime:7.0 AS runtime
+# Set the working directory.
+WORKDIR /app
+# Copy the published output from the build stage.
+COPY --from=build /app/publish .
+# Set the entry point for the application
+ENTRYPOINT ["dotnet", "FrostAura.Intelligence.Iluvatar.Telegram.dll"]

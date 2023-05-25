@@ -37,5 +37,5 @@ jobs:
       with:
         destination_container_repo: frostaura/${{ secrets.PROJECT_IDENTITY }}
         provider: dockerhub
-        short_description: 'FrostAura Zeus is an autonomous general purpose, multi-modal agent with a Telegram bot interface.'
+        short_description: 'FrostAura Iluvatar is an autonomous general purpose, multi-modal agent with a Telegram bot interface.'
         readme_file: 'README.md'
