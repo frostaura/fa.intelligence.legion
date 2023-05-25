@@ -27,7 +27,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: frostaura/${{ secrets.PROJECT_IDENTITY }}:latest
+        tags: frostaura/${{ vars.PROJECT_IDENTITY }}:latest
 
     - name: push README to Dockerhub
       uses: christian-korneck/update-container-description-action@v1
@@ -35,7 +35,7 @@ jobs:
         DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
       with:
-        destination_container_repo: frostaura/${{ secrets.PROJECT_IDENTITY }}
+        destination_container_repo: frostaura/${{ vars.PROJECT_IDENTITY }}
         provider: dockerhub
         short_description: 'FrostAura Iluvatar is an autonomous general purpose, multi-modal agent with a Telegram bot interface.'
         readme_file: 'README.md'
