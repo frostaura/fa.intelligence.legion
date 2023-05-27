@@ -1,6 +1,7 @@
 ﻿using FrostAura.Intelligence.Iluvatar.Core.Consts.Cognitive;
 using FrostAura.Intelligence.Iluvatar.Core.Extensions.Cognitive;
 using FrostAura.Intelligence.Iluvatar.Core.Skills;
+using FrostAura.Intelligence.Iluvatar.Core.Skills.Cognitive;
 using FrostAura.Intelligence.Iluvatar.Core.Skills.Core;
 using FrostAura.Libraries.Core.Extensions.Validation;
 using System.Xml.Serialization;
@@ -38,18 +39,23 @@ namespace FrostAura.Intelligence.Iluvatar.Core.Models.Planning
         /// </summary>
         /// <param name="context">The chain execution context.</param>
         /// <param name="planner">The original planner skill to reuse for execution.</param>
+        /// <param name="llmSkill">Allows for passing {PromptVariables.INPUT} to an OpenAI large language model and returning the model's reponse.</param>
         /// <param name="availableSkills">All available skills.</param>
         /// <param name="token">A token to allow for cancelling downstream operations.</param>
         /// <returns>Void</returns>
-        public async Task<string> ExecuteStepAsync(Dictionary<string, string> context, PlannerSkill planner, IEnumerable<BaseSkill> availableSkills, CancellationToken token)
+        public async Task<string> ExecuteStepAsync(Dictionary<string, string> context, BaseSkill planner, BaseSkill llmSkill, IEnumerable<BaseSkill> availableSkills, CancellationToken token)
         {
             var isPlannerStep = Name == typeof(PlannerSkill).FullName;
 
             if (isPlannerStep) throw new NotImplementedException("Implement if the step is a planner for recursive resolution.");
 
             var skill = availableSkills
-                .SingleOrDefault(avsk => avsk.GetType().FullName == Name)
-                .ThrowIfNull($"Could not resolve the required skill for the step named '{Name}'.");
+                .SingleOrDefault(avsk => avsk.GetType().FullName == Name);
+
+            if(skill == default)
+            {
+                skill.ThrowIfNull($"Could not resolve the required skill for the step named '{Name}'.");
+            }
             var interpolatedInput = Input;
 
             foreach (var variable in context)

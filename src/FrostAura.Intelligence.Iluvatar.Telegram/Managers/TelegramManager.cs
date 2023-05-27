@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using FrostAura.Intelligence.Iluvatar.Core.Skills;
+using FrostAura.Intelligence.Iluvatar.Core.Skills.Cognitive;
 using FrostAura.Intelligence.Iluvatar.Core.Skills.Core;
 using FrostAura.Intelligence.Iluvatar.Shared.Models.Config;
 using FrostAura.Intelligence.Iluvatar.Telegram.Extensions.String;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -36,6 +38,10 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         /// </summary>
         private readonly BaseSkill _plannerSkill;
         /// <summary>
+        /// Allows for passing {PromptVariables.INPUT} to an OpenAI large language model and returning the model's reponse.
+        /// </summary>
+        private readonly BaseSkill _llmSkill;
+        /// <summary>
         /// Cancellation token source to allow for cancelling downstream operations at any point.
         /// </summary>
         private CancellationTokenSource _cancellationTokenSource { get; set; }
@@ -45,8 +51,9 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         /// </summary>
         /// <param name="telegramOptions">Telegram app & bot configuration options.</param>
         /// <param name="plannerSkill">The Iluvatar semantic planner skill.</param>
+        /// <param name="llmSkill">Allows for passing {PromptVariables.INPUT} to an OpenAI large language model and returning the model's reponse.</param>
         /// <param name="logger">Logger instance.</param>
-        public TelegramManager(IOptions<TelegramConfig> telegramOptions, PlannerSkill plannerSkill, ILogger<TelegramManager> logger)
+        public TelegramManager(IOptions<TelegramConfig> telegramOptions, PlannerSkill plannerSkill, LLMSkill llmSkill, ILogger<TelegramManager> logger)
         {
             _telegramConfig = telegramOptions.Value;
             _logger = logger;
@@ -73,6 +80,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 }
             };
             _plannerSkill = plannerSkill;
+            _llmSkill = llmSkill;
 
             _logger.LogInformation($"[{this.GetType().Name}] Successfully initialized.");
         }
@@ -89,8 +97,27 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
             var bot = new TelegramBotClient(_telegramConfig.BotToken);
             var me = await bot.GetMeAsync(_cancellationTokenSource.Token);
+            var baseIdentity = $"You are {_telegramConfig.BotIdentity}, an AGI Telegram bot made by FrostAura.";
+            var isOnlinePrompt = $"{baseIdentity} Give me a message where you say that you're online and ready to help heal the world.";
+            var isOnlineMessage = await _llmSkill.ExecuteAsync(isOnlinePrompt, new Dictionary<string, string>(), token);
 
-            bot.StartReceiving((bot, update, token) => OnMessageAsync(bot, update, token), OnErrorAsync, _pollingOptions, _cancellationTokenSource.Token);
+            await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, isOnlineMessage);
+            bot.StartReceiving(async (bot, update, token) =>
+            {
+                try
+                {
+                    await OnMessageAsync(bot, update, token);
+                }
+                catch (Exception ex)
+                {
+                    var errorPrompt = $"{baseIdentity} Give me a message where you say that an error occured and the JSON is to follow.";
+                    var errorMessage = await _llmSkill.ExecuteAsync(errorPrompt, new Dictionary<string, string>(), token);
+                    var exceptionMsg = $"{errorMessage}{Environment.NewLine}```json{Environment.NewLine}{JsonConvert.SerializeObject(ex, Formatting.Indented)}{Environment.NewLine}```";
+                    // TODO: Migrate error message reporting to a custom error logger.
+                    await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, exceptionMsg.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
+                    _logger.LogWarning($"[{this.GetType().Name}] Failed to process incoming message.", ex);
+                }
+            }, OnErrorAsync, _pollingOptions, _cancellationTokenSource.Token);
         }
 
         /// <summary>

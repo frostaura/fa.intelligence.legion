@@ -43,6 +43,7 @@ try
 }
 catch (Exception ex)
 {
+    Console.WriteLine($"An error has occured. Shutting down the host. Error: {ex.Message}");
     tokenSource.Cancel();
     throw;
 }

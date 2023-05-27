@@ -7,6 +7,8 @@ using FrostAura.Intelligence.Iluvatar.Core.Skills.IO;
 using FrostAura.Intelligence.Iluvatar.Shared.Models.Config;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.Retry;
 
 namespace FrostAura.Intelligence.Iluvatar.Core.Skills.Core
 {
@@ -18,11 +20,15 @@ namespace FrostAura.Intelligence.Iluvatar.Core.Skills.Core
         /// <summary>
         /// The description of the expected input.
         /// </summary>
-        public override string InputDescription => "A goal to accomplish, a problem to solve or a high-level action to perform.";
+        public override string InputDescription => "A goal to accomplish, a problem to solve or a high-level action to perform or a query.";
         /// <summary>
         /// The function of the skill.
         /// </summary>
-        public override string Function => $"Take in any problem or query, {PromptVariables.INPUT}, and generate a comprehensive step by step plan for how to solve for {PromptVariables.INPUT}. This skill is great when it seems like no other skills could solve a problem because this skill can break down a problem into smaller skill requirements automatically managing the execution of those skills to return with a coherent response.";
+        public override string Function => $"Take in any problem or query, {PromptVariables.INPUT}, solves the problem recursively and return a response to the original {PromptVariables.INPUT}. A planner can be used to solve impossible queries and can always be used as a last resort if no other skill, not even a {nameof(LLMSkill)}, can help.";
+        /// <summary>
+        /// All available skills.
+        /// </summary>
+        protected readonly List<BaseSkill> _availableSkills;
         /// <summary>
         /// The steps that the planner should follow to produce the plan.
         /// </summary>
@@ -209,21 +215,31 @@ namespace FrostAura.Intelligence.Iluvatar.Core.Skills.Core
             <goal>{PromptVariables.INPUT}</goal>
         """;
         /// <summary>
-        /// All available skills.
+        /// Retry policy for when a plan fails to be parsed.
         /// </summary>
-        protected readonly List<BaseSkill> _availableSkills;
+        private readonly AsyncRetryPolicy<Root> _getPlanPolicy;
+        /// <summary>
+        /// Allows for passing {PromptVariables.INPUT} to an OpenAI large language model and returning the model's reponse.
+        /// </summary>
+        private readonly BaseSkill _llmSkill;
 
         /// <summary>
         /// Overloaded constructor to provide dependencies.
         /// </summary>
         /// <param name="serviceProvider">A service provider for the DI container.</param>
+        /// <param name="llmSkill">Allows for passing {PromptVariables.INPUT} to an OpenAI large language model and returning the model's reponse.</param>
         /// <param name="logger">Logger instance.</param>
-        public PlannerSkill(IServiceProvider serviceProvider, ILogger<PlannerSkill> logger)
+        public PlannerSkill(IServiceProvider serviceProvider, LLMSkill llmSkill, ILogger<PlannerSkill> logger)
             : base(logger)
         {
-            _availableSkills = ((IEnumerable<BaseSkill>)serviceProvider.GetService(typeof(IEnumerable<BaseSkill>))).ToList();
-
-            _availableSkills.Append(this);
+            _availableSkills = ((IEnumerable<BaseSkill>)serviceProvider.GetService(typeof(IEnumerable<BaseSkill>)))
+                .Concat(new List<BaseSkill> { this, llmSkill })
+                .ToList();
+            _getPlanPolicy = Policy
+                .Handle<Exception>()
+                .OrResult<Root>(m => m == default)
+                .WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount)));
+            _llmSkill = llmSkill;
         }
 
         /// <summary>
@@ -255,16 +271,20 @@ namespace FrostAura.Intelligence.Iluvatar.Core.Skills.Core
             context[PromptVariables.INPUT] = goal;
 
             var llmPrompt = _prompt.Contextualize(context);
-            var llmSkill = _availableSkills.First(s => s is LLMSkill);
-            var llmResponse = await llmSkill.RunAsync(llmPrompt, context, token);
-            var planner = llmResponse
-                .PlannerFromXmlStr(goal);
+            var planner = await _getPlanPolicy.ExecuteAsync(async () =>
+            {
+                var llmResponse = await _llmSkill.RunAsync(llmPrompt, context, token);
+                var planner = llmResponse
+                    .PlannerFromXmlStr(goal);
+
+                return planner;
+            });
 
             // Execute each step in the plan sequentially.
             foreach (var step in planner.Plan.Steps)
             {
                 // Keep the output of the plan current with the last step's output.
-                planner.Plan.Output = await step.ExecuteStepAsync(context, this, _availableSkills, token);
+                planner.Plan.Output = await step.ExecuteStepAsync(context, this, _llmSkill, _availableSkills, token);
             }
 
             return planner.Plan;

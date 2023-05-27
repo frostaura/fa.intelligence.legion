@@ -5,9 +5,13 @@ namespace FrostAura.Intelligence.Iluvatar.Shared.Models.Config
 	/// <summary>
 	/// Telegram config model.
 	/// </summary>
-	[DebuggerDisplay("{BotName}")]
+	[DebuggerDisplay("{BotIdentity}")]
 	public class TelegramConfig
 	{
+		/// <summary>
+		/// The identity that the bot should take.
+		/// </summary>
+		public string BotIdentity { get; set; }
 		/// <summary>
 		/// The access token for the bot.
 		/// </summary>

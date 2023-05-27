@@ -11,7 +11,7 @@ namespace FrostAura.Intelligence.Iluvatar.Core.Skills.Core
         /// <summary>
         /// The description of the expected input.
         /// </summary>
-        public override string InputDescription => "The integer value in milliseconds for the delay.";
+        public override string InputDescription => "The integer value in milliseconds for the delay. For example, for one second: 1000";
         /// <summary>
         /// The function of the skill.
         /// </summary>

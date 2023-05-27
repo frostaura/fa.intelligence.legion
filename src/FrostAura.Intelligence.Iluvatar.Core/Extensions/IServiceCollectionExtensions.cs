@@ -1,5 +1,6 @@
 ﻿using FrostAura.Intelligence.Iluvatar.Core.Extensions.Cognitive;
 using FrostAura.Intelligence.Iluvatar.Core.Skills;
+using FrostAura.Intelligence.Iluvatar.Core.Skills.Cognitive;
 using FrostAura.Intelligence.Iluvatar.Core.Skills.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,7 +38,7 @@ namespace FrostAura.Intelligence.Iluvatar.Shared.Extensions
             {
                 serviceCollection.AddSingleton(type);
 
-                if (type != typeof(PlannerSkill))
+                if (type != typeof(PlannerSkill) && type != typeof(LLMSkill))
                 {
                     serviceCollection.AddSingleton(typeof(BaseSkill), type);
                 }
