@@ -14,15 +14,11 @@ var configuration = new ConfigurationBuilder()
 
 // Bind configuration.
 services
-    .AddTelegramConfiguration(configuration)
-    .AddSharedConfiguration(configuration)
-    .AddCoreConfiguration(configuration);
+    .AddConfiguration(configuration);
 
 // Register dependencies.
 services
-    .AddSharedServices(configuration)
-    .AddCoreServices(configuration)
-    .AddTelegramServices(configuration);
+    .AddServices(configuration);
 
 // Initialize the host.
 var serviceProvider = services.BuildServiceProvider();

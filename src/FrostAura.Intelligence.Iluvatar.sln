@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Intelligence.Iluv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Intelligence.Iluvatar.Shared", "FrostAura.Intelligence.Iluvatar.Shared\FrostAura.Intelligence.Iluvatar.Shared.csproj", "{FD966C6B-B118-4FB7-8B41-D03F272FF7B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Intelligence.Iluvatar.Core", "FrostAura.Intelligence.Iluvatar.Core\FrostAura.Intelligence.Iluvatar.Core.csproj", "{FEB0DDCA-50D3-401A-BB11-8FD2382CDF82}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{FD966C6B-B118-4FB7-8B41-D03F272FF7B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD966C6B-B118-4FB7-8B41-D03F272FF7B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD966C6B-B118-4FB7-8B41-D03F272FF7B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FEB0DDCA-50D3-401A-BB11-8FD2382CDF82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FEB0DDCA-50D3-401A-BB11-8FD2382CDF82}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FEB0DDCA-50D3-401A-BB11-8FD2382CDF82}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FEB0DDCA-50D3-401A-BB11-8FD2382CDF82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

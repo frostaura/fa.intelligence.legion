@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using FrostAura.Intelligence.Iluvatar.Core.Skills;
-using FrostAura.Intelligence.Iluvatar.Core.Skills.Cognitive;
-using FrostAura.Intelligence.Iluvatar.Core.Skills.Core;
-using FrostAura.Intelligence.Iluvatar.Shared.Models.Config;
+﻿using FrostAura.Intelligence.Iluvatar.Shared.Models.Config;
 using FrostAura.Intelligence.Iluvatar.Telegram.Extensions.String;
+using FrostAura.Libraries.Semantic.Core.Enums.Models;
+using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
+using FrostAura.Libraries.Semantic.Core.Models.Prompts;
+using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -12,7 +11,6 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
 {
@@ -34,26 +32,24 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         /// </summary>
         private readonly ILogger _logger;
         /// <summary>
-        /// The Iluvatar semantic planner skill.
-        /// </summary>
-        private readonly BaseSkill _plannerSkill;
-        /// <summary>
         /// Allows for passing {PromptVariables.INPUT} to an OpenAI large language model and returning the model's reponse.
         /// </summary>
-        private readonly BaseSkill _llmSkill;
+        private readonly LanguageModelThoughts _llmSkill;
         /// <summary>
         /// Cancellation token source to allow for cancelling downstream operations at any point.
         /// </summary>
         private CancellationTokenSource _cancellationTokenSource { get; set; }
+        /// <summary>
+        /// A collection of conversations for all user threats.
+        /// </summary>
+        private readonly Dictionary<string, Conversation> _conversations = new Dictionary<string, Conversation>();
 
         /// <summary>
         /// Overloaded constructor for injecting dependencies.
         /// </summary>
         /// <param name="telegramOptions">Telegram app & bot configuration options.</param>
-        /// <param name="plannerSkill">The Iluvatar semantic planner skill.</param>
-        /// <param name="llmSkill">Allows for passing {PromptVariables.INPUT} to an OpenAI large language model and returning the model's reponse.</param>
         /// <param name="logger">Logger instance.</param>
-        public TelegramManager(IOptions<TelegramConfig> telegramOptions, PlannerSkill plannerSkill, LLMSkill llmSkill, ILogger<TelegramManager> logger)
+        public TelegramManager(IServiceProvider serviceProvider, IOptions<TelegramConfig> telegramOptions, ILogger<TelegramManager> logger)
         {
             _telegramConfig = telegramOptions.Value;
             _logger = logger;
@@ -79,8 +75,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                     UpdateType.Unknown
                 }
             };
-            _plannerSkill = plannerSkill;
-            _llmSkill = llmSkill;
+            _llmSkill = serviceProvider.GetThoughtByName<LanguageModelThoughts>(nameof(LanguageModelThoughts));
 
             _logger.LogInformation($"[{this.GetType().Name}] Successfully initialized.");
         }
@@ -97,9 +92,8 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
             var bot = new TelegramBotClient(_telegramConfig.BotToken);
             var me = await bot.GetMeAsync(_cancellationTokenSource.Token);
-            var baseIdentity = $"You are {_telegramConfig.BotIdentity}, an AGI Telegram bot made by FrostAura.";
-            var isOnlinePrompt = $"{baseIdentity} Give me a message where you say that you're online and ready to help heal the world.";
-            var isOnlineMessage = await _llmSkill.ExecuteAsync(isOnlinePrompt, new Dictionary<string, string>(), token);
+            var isOnlinePrompt = "Give me a message where you say that you're online and ready to help heal the world.";
+            var isOnlineMessage = await _llmSkill.PromptSmallLLMAsync(isOnlinePrompt, token);
 
             await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, isOnlineMessage);
             bot.StartReceiving(async (bot, update, token) =>
@@ -110,10 +104,9 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 }
                 catch (Exception ex)
                 {
-                    var errorPrompt = $"{baseIdentity} Give me a message where you say that an error occured and the JSON is to follow.";
-                    var errorMessage = await _llmSkill.ExecuteAsync(errorPrompt, new Dictionary<string, string>(), token);
+                    var errorPrompt = $"Give me a message where you say that an error occured and the JSON is to follow.";
+                    var errorMessage = await _llmSkill.PromptSmallLLMAsync(errorPrompt, token);
                     var exceptionMsg = $"{errorMessage}{Environment.NewLine}```json{Environment.NewLine}{JsonConvert.SerializeObject(ex, Formatting.Indented)}{Environment.NewLine}```";
-                    // TODO: Migrate error message reporting to a custom error logger.
                     await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, exceptionMsg.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
                     _logger.LogWarning($"[{this.GetType().Name}] Failed to process incoming message.", ex);
                 }
@@ -140,6 +133,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         {
             var message = update.Message;
             var sender = message?.From;
+            var senderId = sender.Id.ToString();
             var senderFullName = $"{sender?.FirstName} {sender?.LastName}";
             var filesToProcess = new List<string>();
 
@@ -186,9 +180,16 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             {
                 _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] processing query: {message?.Text}.");
 
-                var response = await _plannerSkill.ExecuteAsync(message?.Text, new Dictionary<string, string>());
+                if(_conversations.ContainsKey(senderId))
+                {
+                    _conversations[senderId] = await _llmSkill.ChatAsync(message?.Text, ModelType.LargeLLM, token);
+                }
+                else
+                {
+                    _conversations[senderId].ChatAsync(message?.Text, token);
+                }
 
-                await bot.SendTextMessageAsync(update.Message.Chat.Id, response.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
+                await bot.SendTextMessageAsync(update.Message.Chat.Id, _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
             }
         }
 

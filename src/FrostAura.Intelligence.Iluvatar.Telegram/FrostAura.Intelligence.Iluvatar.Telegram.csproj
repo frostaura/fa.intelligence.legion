@@ -9,33 +9,38 @@
 
   <ItemGroup>
     <PackageReference Include="Telegram.Bot" Version="19.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="FrostAura.Libraries.Intelligence.Semantic.Core" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FrostAura.Intelligence.Iluvatar.Shared\FrostAura.Intelligence.Iluvatar.Shared.csproj" />
-    <ProjectReference Include="..\FrostAura.Intelligence.Iluvatar.Core\FrostAura.Intelligence.Iluvatar.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Managers\" />
     <None Remove="Extensions\" />
     <None Remove="Extensions\String\" />
+    <None Remove="Data\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Managers\" />
     <Folder Include="Extensions\" />
     <Folder Include="Extensions\String\" />
+    <Folder Include="Data\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings %28copy%29.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
