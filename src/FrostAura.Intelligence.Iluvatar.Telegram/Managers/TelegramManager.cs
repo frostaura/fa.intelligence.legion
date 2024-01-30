@@ -180,7 +180,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             {
                 _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] processing query: {message?.Text}.");
 
-                var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "Thinking...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
+                var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Thinking...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
 
                 if (!_conversations.ContainsKey(senderId))
                 {
@@ -191,7 +191,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                     await _conversations[senderId].ChatAsync(message?.Text, token);
                 }
 
-                await bot.EditMessageTextAsync(update.Message.Chat.Id, botResponseMessage.MessageId, _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2);
+                await bot.EditMessageTextAsync(update.Message.Chat.Id, botResponseMessage.MessageId, "🟢 " + _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2);
             }
         }
 
