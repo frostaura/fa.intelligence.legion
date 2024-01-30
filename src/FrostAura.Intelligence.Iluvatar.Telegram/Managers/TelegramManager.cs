@@ -92,7 +92,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
             var bot = new TelegramBotClient(_telegramConfig.BotToken);
             var me = await bot.GetMeAsync(_cancellationTokenSource.Token);
-            var isOnlinePrompt = "Give me a message where you say that you're online and ready to help heal the world.";
+            var isOnlinePrompt = "Write a short greetings message.";
             var isOnlineMessage = await _llmSkill.PromptSmallLLMAsync(isOnlinePrompt, token);
 
             await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, isOnlineMessage);
@@ -180,13 +180,13 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             {
                 _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] processing query: {message?.Text}.");
 
-                if(_conversations.ContainsKey(senderId))
+                if(!_conversations.ContainsKey(senderId))
                 {
                     _conversations[senderId] = await _llmSkill.ChatAsync(message?.Text, ModelType.LargeLLM, token);
                 }
                 else
                 {
-                    _conversations[senderId].ChatAsync(message?.Text, token);
+                    await _conversations[senderId].ChatAsync(message?.Text, token);
                 }
 
                 await bot.SendTextMessageAsync(update.Message.Chat.Id, _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);

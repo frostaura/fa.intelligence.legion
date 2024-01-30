@@ -16,7 +16,13 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-    <PackageReference Include="FrostAura.Libraries.Intelligence.Semantic.Core" Version="1.4.0" />
+    <PackageReference Include="FrostAura.Libraries.Intelligence.Semantic.Core" Version="1.4.2" />
+    <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.2.0" />
+    <PackageReference Include="Google.Apis" Version="1.66.0" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.66.0.3309" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FrostAura.Intelligence.Iluvatar.Shared\FrostAura.Intelligence.Iluvatar.Shared.csproj" />
