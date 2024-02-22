@@ -85,7 +85,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         /// </summary>
         /// <param name="token">Allow for cancelling downsteam operations.</param>
         /// <returns>Void</returns>
-        public async Task RunAsync(CancellationToken token)
+        public async Task RunAsync(CancellationToken token) 
         {
             token.ThrowIfCancellationRequested();
 
@@ -107,6 +107,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                     var errorPrompt = $"Give me a message where you say that an error occured and the JSON is to follow.";
                     var errorMessage = await _llmSkill.PromptSmallLLMAsync(errorPrompt, token);
                     var exceptionMsg = $"{errorMessage}{Environment.NewLine}```json{Environment.NewLine}{JsonConvert.SerializeObject(ex, Formatting.Indented)}{Environment.NewLine}```";
+
                     await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, exceptionMsg.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
                     _logger.LogWarning($"[{this.GetType().Name}] Failed to process incoming message.", ex);
                 }
@@ -189,6 +190,24 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 else
                 {
                     await _conversations[senderId].ChatAsync(message?.Text, token);
+                }
+
+                await bot.EditMessageTextAsync(update.Message.Chat.Id, botResponseMessage.MessageId, "🟢 " + _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2);
+            }
+            else
+            {
+                _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] processing file(s).");
+
+                var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Analyzing file(s)...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
+                var messageToSend = filesToProcess.Aggregate((l, r) => $"{l}, {r}");
+
+                if (!_conversations.ContainsKey(senderId))
+                {
+                    _conversations[senderId] = await _llmSkill.ChatAsync(messageToSend, ModelType.LargeLLM, token);
+                }
+                else
+                {
+                    await _conversations[senderId].ChatAsync(messageToSend, token);
                 }
 
                 await bot.EditMessageTextAsync(update.Message.Chat.Id, botResponseMessage.MessageId, "🟢 " + _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2);
