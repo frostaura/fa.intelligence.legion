@@ -144,6 +144,16 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
 
             _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] Received a new message: {update}");
 
+            // Ensure directories exist.
+            if (!Directory.Exists(Path.Combine(_telegramConfig.MediaStoragePath)))
+                Directory.CreateDirectory(Path.Combine(_telegramConfig.MediaStoragePath));
+            if (!Directory.Exists(Path.Combine(_telegramConfig.MediaStoragePath, "photos")))
+                Directory.CreateDirectory(Path.Combine(_telegramConfig.MediaStoragePath, "photos"));
+            if (!Directory.Exists(Path.Combine(_telegramConfig.MediaStoragePath, "documents")))
+                Directory.CreateDirectory(Path.Combine(_telegramConfig.MediaStoragePath, "documents"));
+            if (!Directory.Exists(Path.Combine(_telegramConfig.MediaStoragePath, "voicenotes")))
+                Directory.CreateDirectory(Path.Combine(_telegramConfig.MediaStoragePath, "voicenotes"));
+
             // Process Photo Messages
             if (message?.Photo != default)
             {
