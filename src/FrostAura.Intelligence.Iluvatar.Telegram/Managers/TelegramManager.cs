@@ -43,6 +43,10 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         /// A collection of conversations for all user threats.
         /// </summary>
         private readonly Dictionary<string, Conversation> _conversations = new Dictionary<string, Conversation>();
+        /// <summary>
+        /// A collection of message handler operations in order to fascilitate concurrent message handling.
+        /// </summary>
+        private readonly List<Task> _onMessageReceivedHandlingTasks = new List<Task>();
 
         /// <summary>
         /// Overloaded constructor for injecting dependencies.
@@ -100,7 +104,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             {
                 try
                 {
-                    await OnMessageAsync(bot, update, token);
+                    _onMessageReceivedHandlingTasks.Append(Task.Run(() => OnMessageAsync(bot, update, token)));
                 }
                 catch (Exception ex)
                 {
@@ -108,7 +112,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                     var errorMessage = await _llmSkill.PromptSmallLLMAsync(errorPrompt, token);
                     var exceptionMsg = $"{errorMessage}{Environment.NewLine}```json{Environment.NewLine}{JsonConvert.SerializeObject(ex, Formatting.Indented)}{Environment.NewLine}```";
 
-                    await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, exceptionMsg.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
+                    await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, $"🔴 {exceptionMsg.MarkdownV2Escape()}", parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
                     _logger.LogWarning($"[{this.GetType().Name}] Failed to process incoming message.", ex);
                 }
             }, OnErrorAsync, _pollingOptions, _cancellationTokenSource.Token);
@@ -120,7 +124,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         public void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _logger.LogInformation($"[{this.GetType().Name}] Successfully cleaned up unmanaged resources.");
+            _logger.LogDebug($"[{this.GetType().Name}] Successfully cleaned up unmanaged resources.");
         }
 
         /// <summary>
@@ -155,7 +159,8 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             // Process File Messages
             if (message?.Document != default)
             {
-                var fileName = message.Document.FileName;
+                var fileExtension = message.Document.FileName.Split(".").Last();
+                var fileName = $"{Guid.NewGuid()}.{fileExtension}";
                 var filePath = Path.Combine(_telegramConfig.MediaStoragePath, "documents", fileName);
                 var stream = new FileStream(filePath, FileMode.CreateNew);
 
@@ -182,14 +187,15 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] processing query: {message?.Text}.");
 
                 var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Thinking...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
+                var normalizedMessageText = message?.Text.EscapeCodeStrings();
 
                 if (!_conversations.ContainsKey(senderId))
                 {
-                    _conversations[senderId] = await _llmSkill.ChatAsync(message?.Text, ModelType.LargeLLM, token);
+                    _conversations[senderId] = await _llmSkill.ChatAsync(normalizedMessageText, ModelType.LargeLLM, token);
                 }
                 else
                 {
-                    await _conversations[senderId].ChatAsync(message?.Text, token);
+                    await _conversations[senderId].ChatAsync(normalizedMessageText, token);
                 }
 
                 await bot.EditMessageTextAsync(update.Message.Chat.Id, botResponseMessage.MessageId, "🟢 " + _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2);

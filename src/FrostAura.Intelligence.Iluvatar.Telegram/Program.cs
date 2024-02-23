@@ -43,5 +43,3 @@ catch (Exception ex)
     tokenSource.Cancel();
     throw;
 }
-
-Console.WriteLine("Shutting down the host.");
