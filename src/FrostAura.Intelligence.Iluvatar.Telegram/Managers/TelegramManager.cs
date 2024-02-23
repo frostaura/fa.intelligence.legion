@@ -46,7 +46,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         /// <summary>
         /// A collection of message handler operations in order to fascilitate concurrent message handling.
         /// </summary>
-        private readonly List<Task> _onMessageReceivedHandlingTasks = new List<Task>();
+        private List<Task> _onMessageReceivedHandlingTasks = new List<Task>();
 
         /// <summary>
         /// Overloaded constructor for injecting dependencies.
@@ -104,6 +104,9 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             {
                 try
                 {
+                    _onMessageReceivedHandlingTasks = _onMessageReceivedHandlingTasks
+                        .Where(t => !t.IsCompleted)
+                        .ToList();
                     _onMessageReceivedHandlingTasks.Append(Task.Run(() => OnMessageAsync(bot, update, token)));
                 }
                 catch (Exception ex)
