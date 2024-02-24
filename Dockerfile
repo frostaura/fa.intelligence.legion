@@ -37,4 +37,4 @@ WORKDIR /app
 # Copy the published output from the build stage.
 COPY --from=build /app/publish .
 # Set the entry point for the application
-#ENTRYPOINT ["dotnet", "FrostAura.Intelligence.Iluvatar.Telegram.dll"]
+ENTRYPOINT ["dotnet", "FrostAura.Intelligence.Iluvatar.Telegram.dll"]
