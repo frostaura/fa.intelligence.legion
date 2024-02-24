@@ -26,14 +26,18 @@ RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && echo "conda activ
 # Initialize conda for shell interaction
 SHELL ["/bin/bash", "--login", "-c"]
 # Update apt repositories and install ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg libnss3 && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ffmpeg && apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install chrome webdriver.
+RUN apt-get update && apt-get install -y libnss3 wget gnupg2 unzip xvfb libxi6 libgconf-2-4
 COPY --from=chrome-base /opt/selenium /opt/selenium
 COPY --from=chrome-base /opt/bin /opt/bin
 ENV PATH="/opt/bin:${PATH}"
 ENV PATH="/opt/selenium:${PATH}"
+ADD https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip /usr/local/bin/
+RUN unzip /usr/local/bin/chromedriver_linux64.zip -d /usr/local/bin/
+RUN chmod 755 /usr/local/bin/chromedriver
 # Install git.
-RUN apt-get update && apt-get install git -y
+RUN apt-get update && apt-get install git -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 ENV PATH="/usr/local/bin:${PATH}"
 RUN git config --global http.sslverify false
 # Set the working directory.
