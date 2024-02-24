@@ -19,6 +19,7 @@ RUN dotnet publish -c Release --no-build -o /app/publish
 FROM mcr.microsoft.com/dotnet/runtime:7.0 AS runtime
 # Copy the entire Miniconda installation from the first image
 COPY --from=miniconda-base /opt/conda /opt/conda
+COPY --from=miniconda-base /opt/conda /root/miniconda3
 # Add conda to the PATH and initialize in the bash config file (.bashrc)
 ENV PATH /opt/conda/bin:$PATH
 RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && echo "conda activate base" >> ~/.bashrc
@@ -31,7 +32,12 @@ COPY --from=chrome-base /opt/selenium /opt/selenium
 COPY --from=chrome-base /opt/bin /opt/bin
 ENV PATH="/opt/bin:${PATH}"
 ENV PATH="/opt/selenium:${PATH}"
-
+# Install git.
+RUN apt-get update && apt-get install git -y
+ENV PATH="/usr/local/bin:${PATH}"
+RUN git config --global http.sslverify false
+RUN export DOCKER_DEFAULT_PLATFORM=linux/amd64
+ENV DOCKER_DEFAULT_PLATFORM="linux/amd64"
 # Set the working directory.
 WORKDIR /app
 # Copy the published output from the build stage.
