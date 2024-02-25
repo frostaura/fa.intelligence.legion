@@ -36,6 +36,7 @@ public class TelegramUserAgentProxy : IUserProxyDataAccess
             .Select(s => GetEventTreeLogRecursively(scopes, s))
             .Aggregate((l, r) => $"{l}{Environment.NewLine}{r}");
 
+        Console.Clear();
         Console.WriteLine(formattedLog);
 
         return Task.CompletedTask;
@@ -50,15 +51,18 @@ public class TelegramUserAgentProxy : IUserProxyDataAccess
     /// <returns>The string representation.</returns>
     private string GetEventTreeLogRecursively(List<LogItem> scopes, LogItem item, int index = 1)
     {
+        // Root-level log.
         var delimiter = "+";
         var response = item.Type == LogType.ScopeRoot ? Enumerable
                 .Range(1, index)
                 .Select(i => delimiter)
                 .Aggregate((l, r) => $"{l}{r}") + $" {item.Message}" + Environment.NewLine : string.Empty;
+        var lineItems = new List<(DateTime timestamp, string message)>();
 
+        // Write direct child logs.
         foreach (var childItem in item.Logs)
         {
-            response += Enumerable
+            var childResponse = Enumerable
                 .Range(1, index + 1)
                 .Select(i => delimiter)
                 .Aggregate((l, r) => $"{l}{r}") + $" {childItem.Message}" + Environment.NewLine;
@@ -66,8 +70,10 @@ public class TelegramUserAgentProxy : IUserProxyDataAccess
             // Write all direct children.
             foreach (var nestedChildItem in childItem.Logs)
             {
-                response += GetEventTreeLogRecursively(scopes, nestedChildItem, index + 1) + Environment.NewLine;
+                childResponse += GetEventTreeLogRecursively(scopes, nestedChildItem, index + 1);
             }
+
+            lineItems.Add((childItem.Timestamp, childResponse));
         }
 
         // Write all dependent items.
@@ -76,9 +82,14 @@ public class TelegramUserAgentProxy : IUserProxyDataAccess
 
         foreach (var dependentItem in dependents)
         {
-            response += GetEventTreeLogRecursively(scopes, dependentItem, index + 1) + Environment.NewLine;
+            var dependentResponse = GetEventTreeLogRecursively(scopes, dependentItem, index + 1);
+
+            lineItems.Add((dependentItem.Timestamp, dependentResponse));
         }
 
-        return response;
+        return lineItems
+            .OrderBy(li => li.timestamp)
+            .Select(li => li.message)
+            .Aggregate((l, r) => $"{l}{r}");
     }
 }

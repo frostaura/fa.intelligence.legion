@@ -117,7 +117,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                         var errorMessage = await _llmSkill.PromptSmallLLMAsync(errorPrompt, token);
                         var exceptionMsg = $"{errorMessage}{Environment.NewLine}```json{Environment.NewLine}{JsonConvert.SerializeObject(ex, Formatting.Indented)}{Environment.NewLine}```";
 
-                        await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, $"🔴 {exceptionMsg.MarkdownV2Escape()}", parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
+                        await bot.SendTextMessageAsync(update.Message.From.Id, $"🔴 {exceptionMsg.MarkdownV2Escape()}", parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
                         _logger.LogError(ex, "[{Type}] Failed to process incoming message.", GetType().Name);
                     }
                 }));
@@ -146,7 +146,6 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             var sender = message?.From;
             var senderId = sender.Id.ToString();
             var senderFullName = $"{sender?.FirstName} {sender?.LastName}";
-            // TODO: Send user into context object and pass it into the chat.
             var filesToProcess = new List<string>();
 
             _logger.LogInformation("[{Type}][{SenderFullName}] Received a new message: {MessageUpdate}", GetType().Name, senderFullName, update);
@@ -170,7 +169,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
 
                 await bot.GetInfoAndDownloadFileAsync(message?.Photo.Last().FileId, stream);
                 _logger.LogInformation("[{Type}][{SenderFullName}] Saved photo to '{FilePath}'.", GetType().Name, senderFullName, filePath);
-                filesToProcess.Add(filePath);
+                filesToProcess.Add($"Generate a detailed description for a Dall-E 3 prompt using the following image: {filePath}");
             }
 
             // Process File Messages
@@ -183,7 +182,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
 
                 await bot.GetInfoAndDownloadFileAsync(message?.Document.FileId, stream);
                 _logger.LogInformation("[{Type}][{SenderFullName}] Saved document to '{FilePath}'.", GetType().Name, senderFullName, filePath);
-                filesToProcess.Add(filePath);
+                filesToProcess.Add($"Analyze the following file using your creative and logical thinking, using the tools at your disposal: {filePath}");
             }
 
             // Process Voice Messages
@@ -195,7 +194,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
 
                 await bot.GetInfoAndDownloadFileAsync(message?.Voice.FileId, stream);
                 _logger.LogInformation("[{Type}][{SenderFullName}] Saved voicenote to '{FilePath}'.", GetType().Name, senderFullName, filePath);
-                filesToProcess.Add(filePath);
+                filesToProcess.Add($"Extract the intent from the following voicenote by using the tools at your disposal and respond to it accordingly as if it was a text query/question/prompt: {filePath}");
             }
 
             // Process Text Messages
@@ -204,17 +203,23 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 _logger.LogInformation("[{Type}][{SenderFullName}] processing query: {MessageText}.", GetType().Name, senderFullName, message?.Text);
 
                 var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Thinking...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
+                var operationContext = new OperationContext
+                {
+                    Id = botResponseMessage.MessageId.ToString(),
+                    Name = senderFullName
+                };
                 var normalizedMessageText = message?.Text.EscapeCodeStrings();
 
                 if (!_conversations.ContainsKey(senderId))
                 {
-                    _conversations[senderId] = await _llmSkill.ChatAsync(normalizedMessageText, ModelType.LargeLLM, token);
+                    _conversations[senderId] = await _llmSkill.ChatAsync(normalizedMessageText, ModelType.LargeLLM, token, operationContext);
                 }
                 else
                 {
-                    await _conversations[senderId].ChatAsync(normalizedMessageText, token);
+                    await _conversations[senderId].ChatAsync(normalizedMessageText, token, operationContext);
                 }
 
+                // TODO: Delete old updates once successful response is done and send a fresh response. This will send a notification upon completion.
                 await bot.EditMessageTextAsync(update.Message.Chat.Id, botResponseMessage.MessageId, "🟢 " + _conversations[senderId].LastMessage.MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2);
             }
             else
@@ -222,7 +227,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 _logger.LogInformation("[{Type}][{SenderFullName}] processing file(s).", GetType().Name, senderFullName);
 
                 var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Analyzing file(s)...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
-                var messageToSend = filesToProcess.Aggregate((l, r) => $"{l}, {r}");
+                var messageToSend = filesToProcess.Aggregate((l, r) => $"{l}{Environment.NewLine}{r}");
 
                 if (!string.IsNullOrWhiteSpace(message?.Caption))
                     messageToSend += $"{Environment.NewLine}{Environment.NewLine}{message.Caption}";
