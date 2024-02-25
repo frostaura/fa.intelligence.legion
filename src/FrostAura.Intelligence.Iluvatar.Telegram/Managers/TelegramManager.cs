@@ -224,6 +224,9 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Analyzing file(s)...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
                 var messageToSend = filesToProcess.Aggregate((l, r) => $"{l}, {r}");
 
+                if (!string.IsNullOrWhiteSpace(message?.Caption))
+                    messageToSend += $"{Environment.NewLine}{Environment.NewLine}{message.Caption}";
+
                 if (!_conversations.ContainsKey(senderId))
                 {
                     _conversations[senderId] = await _llmSkill.ChatAsync(messageToSend, ModelType.LargeLLM, token);
