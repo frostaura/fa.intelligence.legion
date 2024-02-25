@@ -81,7 +81,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             };
             _llmSkill = serviceProvider.GetThoughtByName<LanguageModelThoughts>(nameof(LanguageModelThoughts));
 
-            _logger.LogInformation($"[{this.GetType().Name}] Successfully initialized.");
+            _logger.LogInformation("[{Type}] Successfully initialized.", GetType().Name);
         }
 
         /// <summary>
@@ -102,22 +102,25 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, isOnlineMessage);
             bot.StartReceiving(async (bot, update, token) =>
             {
-                try
+                _onMessageReceivedHandlingTasks = _onMessageReceivedHandlingTasks
+                    .Where(t => !t.IsCompleted)
+                    .ToList();
+                _onMessageReceivedHandlingTasks.Append(Task.Run(async () =>
                 {
-                    _onMessageReceivedHandlingTasks = _onMessageReceivedHandlingTasks
-                        .Where(t => !t.IsCompleted)
-                        .ToList();
-                    _onMessageReceivedHandlingTasks.Append(Task.Run(() => OnMessageAsync(bot, update, token)));
-                }
-                catch (Exception ex)
-                {
-                    var errorPrompt = $"Give me a message where you say that an error occured and the JSON is to follow.";
-                    var errorMessage = await _llmSkill.PromptSmallLLMAsync(errorPrompt, token);
-                    var exceptionMsg = $"{errorMessage}{Environment.NewLine}```json{Environment.NewLine}{JsonConvert.SerializeObject(ex, Formatting.Indented)}{Environment.NewLine}```";
+                    try
+                    {
+                        await OnMessageAsync(bot, update, token);
+                    }
+                    catch (Exception ex)
+                    {
+                        var errorPrompt = $"Give me a message where you say that an error occured and the JSON is to follow.";
+                        var errorMessage = await _llmSkill.PromptSmallLLMAsync(errorPrompt, token);
+                        var exceptionMsg = $"{errorMessage}{Environment.NewLine}```json{Environment.NewLine}{JsonConvert.SerializeObject(ex, Formatting.Indented)}{Environment.NewLine}```";
 
-                    await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, $"🔴 {exceptionMsg.MarkdownV2Escape()}", parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
-                    _logger.LogWarning($"[{this.GetType().Name}] Failed to process incoming message.", ex);
-                }
+                        await bot.SendTextMessageAsync(_telegramConfig.PersonalChatId, $"🔴 {exceptionMsg.MarkdownV2Escape()}", parseMode: ParseMode.MarkdownV2, replyToMessageId: update?.Message?.MessageId);
+                        _logger.LogError(ex, "[{Type}] Failed to process incoming message.", GetType().Name);
+                    }
+                }));
             }, OnErrorAsync, _pollingOptions, _cancellationTokenSource.Token);
         }
 
@@ -127,7 +130,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         public void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _logger.LogDebug($"[{this.GetType().Name}] Successfully cleaned up unmanaged resources.");
+            _logger.LogDebug("[{Type}] Successfully cleaned up unmanaged resources.", GetType().Name);
         }
 
         /// <summary>
@@ -143,9 +146,10 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             var sender = message?.From;
             var senderId = sender.Id.ToString();
             var senderFullName = $"{sender?.FirstName} {sender?.LastName}";
+            // TODO: Send user into context object and pass it into the chat.
             var filesToProcess = new List<string>();
 
-            _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] Received a new message: {update}");
+            _logger.LogInformation("[{Type}][{SenderFullName}] Received a new message: {MessageUpdate}", GetType().Name, senderFullName, update);
 
             // Ensure directories exist.
             if (!Directory.Exists(Path.Combine(_telegramConfig.MediaStoragePath)))
@@ -165,7 +169,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 var stream = new FileStream(filePath, FileMode.CreateNew);
 
                 await bot.GetInfoAndDownloadFileAsync(message?.Photo.Last().FileId, stream);
-                _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] Saved photo to '{filePath}'.");
+                _logger.LogInformation("[{Type}][{SenderFullName}] Saved photo to '{FilePath}'.", GetType().Name, senderFullName, filePath);
                 filesToProcess.Add(filePath);
             }
 
@@ -178,26 +182,26 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
                 var stream = new FileStream(filePath, FileMode.CreateNew);
 
                 await bot.GetInfoAndDownloadFileAsync(message?.Document.FileId, stream);
-                _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] Saved document to '{filePath}'.");
+                _logger.LogInformation("[{Type}][{SenderFullName}] Saved document to '{FilePath}'.", GetType().Name, senderFullName, filePath);
                 filesToProcess.Add(filePath);
             }
 
             // Process Voice Messages
             if (message?.Voice != default)
             {
-                var fileName = $"{Guid.NewGuid()}.mp3";
+                var fileName = $"{Guid.NewGuid()}.wav";
                 var filePath = Path.Combine(_telegramConfig.MediaStoragePath, "voicenotes", fileName);
                 var stream = new FileStream(filePath, FileMode.CreateNew);
 
                 await bot.GetInfoAndDownloadFileAsync(message?.Voice.FileId, stream);
-                _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] Saved voicenote to '{filePath}'.");
+                _logger.LogInformation("[{Type}][{SenderFullName}] Saved voicenote to '{FilePath}'.", GetType().Name, senderFullName, filePath);
                 filesToProcess.Add(filePath);
             }
 
             // Process Text Messages
             if (message?.Text != default)
             {
-                _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] processing query: {message?.Text}.");
+                _logger.LogInformation("[{Type}][{SenderFullName}] processing query: {MessageText}.", GetType().Name, senderFullName, message?.Text);
 
                 var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Thinking...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
                 var normalizedMessageText = message?.Text.EscapeCodeStrings();
@@ -215,7 +219,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
             }
             else
             {
-                _logger.LogInformation($"[{this.GetType().Name}][{senderFullName}] processing file(s).");
+                _logger.LogInformation("[{Type}][{SenderFullName}] processing file(s).", GetType().Name, senderFullName);
 
                 var botResponseMessage = await bot.SendTextMessageAsync(update.Message.Chat.Id, "🟡 Analyzing file(s)...".MarkdownV2Escape(), parseMode: ParseMode.MarkdownV2, replyToMessageId: update.Message.MessageId);
                 var messageToSend = filesToProcess.Aggregate((l, r) => $"{l}, {r}");
@@ -242,7 +246,7 @@ namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
         /// <returns>Void</returns>
         private Task OnErrorAsync(ITelegramBotClient bot, Exception ex, CancellationToken token)
         {
-            _logger.LogError(ex, $"[{this.GetType().Name}] Exception while polling for Telegram bot updates.");
+            _logger.LogError(ex, "[{Type}] Exception while polling for Telegram bot updates.", GetType().Name);
 
             return Task.CompletedTask;
         }
