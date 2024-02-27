@@ -36,7 +36,6 @@ public class TelegramUserAgentProxy : IUserProxyDataAccess
             .Select(s => GetEventTreeLogRecursively(scopes, s))
             .Aggregate((l, r) => $"{l}{Environment.NewLine}{r}");
 
-        Console.Clear();
         Console.WriteLine(formattedLog);
 
         return Task.CompletedTask;

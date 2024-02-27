@@ -1,7 +1,6 @@
 # Dependencies.
 FROM continuumio/miniconda3 as miniconda-base
 RUN conda update -n base -c defaults conda
-FROM selenium/standalone-chrome as chrome-base
 
 # Start with the .NET SDK image.
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
@@ -30,15 +29,8 @@ SHELL ["/bin/bash", "--login", "-c"]
 # Install FFMPEG.
 RUN apt-get update && apt-get install -y ffmpeg && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install chrome webdriver.
+# Install chrome webdriver dependencies.
 RUN apt-get update && apt-get install -y libnss3 wget gnupg2 unzip xvfb libxi6 libgconf-2-4
-COPY --from=chrome-base /opt/selenium /opt/selenium
-COPY --from=chrome-base /opt/bin /opt/bin
-ENV PATH="/opt/bin:${PATH}"
-ENV PATH="/opt/selenium:${PATH}"
-ADD https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip /usr/local/bin/
-RUN unzip /usr/local/bin/chromedriver_linux64.zip -d /usr/local/bin/
-RUN chmod 755 /usr/local/bin/chromedriver
 
 # Install GIT.
 RUN apt-get update && apt-get install git -y && apt-get clean && rm -rf /var/lib/apt/lists/*
