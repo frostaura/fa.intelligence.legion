@@ -1,6 +1,6 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
 
-namespace FrostAura.Intelligence.Iluvatar.Telegram.Extensions.String
+namespace FrostAura.Intelligence.Legion.Telegram.Extensions.String
 {
     /// <summary>
     /// Extensions for managing Telegram messaging strings.

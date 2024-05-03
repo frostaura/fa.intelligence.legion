@@ -2,7 +2,7 @@
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Logging;
 
-namespace FrostAura.Intelligence.Iluvatar.Telegram.Data;
+namespace FrostAura.Intelligence.Legion.Telegram.Data;
 
 /// <summary>
 /// Telegram user proxy.

@@ -1,5 +1,5 @@
-﻿using FrostAura.Intelligence.Iluvatar.Shared.Models.Config;
-using FrostAura.Intelligence.Iluvatar.Telegram.Extensions.String;
+﻿using FrostAura.Intelligence.Legion.Shared.Models.Config;
+using FrostAura.Intelligence.Legion.Telegram.Extensions.String;
 using FrostAura.Libraries.Semantic.Core.Enums.Models;
 using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
 using FrostAura.Libraries.Semantic.Core.Models.Prompts;
@@ -12,7 +12,7 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace FrostAura.Intelligence.Iluvatar.Telegram.Managers
+namespace FrostAura.Intelligence.Legion.Telegram.Managers
 {
     /// <summary>
     /// Telegram host manager. This is the entry point to the application.

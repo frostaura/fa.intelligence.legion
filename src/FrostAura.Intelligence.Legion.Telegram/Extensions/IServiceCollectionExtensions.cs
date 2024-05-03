@@ -1,13 +1,13 @@
-﻿using FrostAura.Intelligence.Iluvatar.Shared.Models.Config;
-using FrostAura.Intelligence.Iluvatar.Telegram.Data;
-using FrostAura.Intelligence.Iluvatar.Telegram.Managers;
+﻿using FrostAura.Intelligence.Legion.Shared.Models.Config;
+using FrostAura.Intelligence.Legion.Telegram.Data;
+using FrostAura.Intelligence.Legion.Telegram.Managers;
 using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FrostAura.Intelligence.Iluvatar.Shared.Extensions
+namespace FrostAura.Intelligence.Legion.Shared.Extensions
 {
     /// <summary>
     /// Service collection extensions.

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace FrostAura.Intelligence.Iluvatar.Shared.Models.Config
+namespace FrostAura.Intelligence.Legion.Shared.Models.Config
 {
 	/// <summary>
 	/// Telegram config model.

@@ -21,7 +21,7 @@
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FrostAura.Intelligence.Iluvatar.Shared\FrostAura.Intelligence.Iluvatar.Shared.csproj" />
+    <ProjectReference Include="..\FrostAura.Intelligence.Legion.Shared\FrostAura.Intelligence.Legion.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Managers\" />

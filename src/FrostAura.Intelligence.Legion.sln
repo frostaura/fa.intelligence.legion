@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 25.0.1705.5
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Intelligence.Iluvatar.Telegram", "FrostAura.Intelligence.Iluvatar.Telegram\FrostAura.Intelligence.Iluvatar.Telegram.csproj", "{D1C59FA6-1691-4B7E-AF5D-44A8E57CC3CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Intelligence.Legion.Telegram", "FrostAura.Intelligence.Legion.Telegram\FrostAura.Intelligence.Legion.Telegram.csproj", "{D1C59FA6-1691-4B7E-AF5D-44A8E57CC3CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Intelligence.Iluvatar.Shared", "FrostAura.Intelligence.Iluvatar.Shared\FrostAura.Intelligence.Iluvatar.Shared.csproj", "{FD966C6B-B118-4FB7-8B41-D03F272FF7B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Intelligence.Legion.Shared", "FrostAura.Intelligence.Legion.Shared\FrostAura.Intelligence.Legion.Shared.csproj", "{FD966C6B-B118-4FB7-8B41-D03F272FF7B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

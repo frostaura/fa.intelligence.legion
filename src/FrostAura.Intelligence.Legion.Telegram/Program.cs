@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FrostAura.Intelligence.Iluvatar.Telegram.Managers;
-using FrostAura.Intelligence.Iluvatar.Shared.Extensions;
+using FrostAura.Intelligence.Legion.Telegram.Managers;
+using FrostAura.Intelligence.Legion.Shared.Extensions;
 
 var tokenSource = new CancellationTokenSource();
 var services = new ServiceCollection();

@@ -1,7 +1,7 @@
 # fa.intelligence.legion
 ![Picture of Legion](https://github.com/faGH/fa.intelligence.legion/blob/main/src/icon.png?raw=true)
 ## Description
-FrostAura's Legion is a dotnet-based state-of-the-art multi-agent LLM framework.
+FrostAura's Legion is a dotnet-based (C#) state-of-the-art multi-agent LLM framework.
 
 ## Status
 | Project | Status | Platform
@@ -14,11 +14,11 @@ FrostAura's Legion is a dotnet-based state-of-the-art multi-agent LLM framework.
 - Dotnet 7 SDK
 - Visual Studio / Visual Studio Code (with the C# extension)
 ### Just Run Legion
-For this option, [Docker](https://docs.docker.com/get-docker/) should be installed and running on the host computer then, in the root of the project, open a terminal and start Iluvatar using Docker Compose via a single command.
+For this option, [Docker](https://docs.docker.com/get-docker/) should be installed and running on the host computer then, in the root of the project, open a terminal and start Legion using Docker Compose via a single command.
 ```bash
 docker-compose up
 ```
-Ensure that you set the required variables in order for the docker-compose to work. See the [docker-compose.yml](https://github.com/faGH/fa.intelligence.iluvatar/blob/main/docker-compose.yml) file for more.
+Ensure that you set the required variables in order for the docker-compose to work. See the [docker-compose.yml](https://github.com/faGH/fa.intelligence.legion/blob/main/docker-compose.yml) file for more.
 
 ## Documentation
 | Content | Description

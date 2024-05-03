@@ -1,31 +1,33 @@
 ﻿<Properties StartupConfiguration="{D1C59FA6-1691-4B7E-AF5D-44A8E57CC3CE}|Default">
-  <MonoDevelop.Ide.ItemProperties.FrostAura.Intelligence.Iluvatar.Telegram PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.FrostAura.Intelligence.Iluvatar.Core FirstBuild="True" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="FrostAura.Intelligence.Iluvatar.Shared/Models/Config/OpenAIConfig.cs">
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workbench ActiveDocument="FrostAura.Intelligence.Iluvatar.Telegram/appsettings.development.json">
     <Files>
-      <File FileName="FrostAura.Intelligence.Iluvatar.Telegram/Program.cs" Line="10" Column="1" />
-      <File FileName="FrostAura.Intelligence.Iluvatar.Telegram/appsettings.json" Line="15" Column="24" />
-      <File FileName="FrostAura.Intelligence.Iluvatar.Shared/Models/Config/OpenAIConfig.cs" Line="18" Column="23" />
+      <File FileName="FrostAura.Intelligence.Iluvatar.Telegram/Managers/TelegramManager.cs" />
+      <File FileName="FrostAura.Intelligence.Iluvatar.Telegram/Data/TelegramUserAgentProxy.cs" />
+      <File FileName="FrostAura.Intelligence.Iluvatar.Telegram/FrostAura.Intelligence.Iluvatar.Telegram.csproj" />
+      <File FileName="FrostAura.Intelligence.Iluvatar.Telegram/appsettings.development.json" Line="15" Column="19" />
+      <File FileName="FrostAura.Intelligence.Iluvatar.Telegram/appsettings.json" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="FrostAura.Intelligence.Iluvatar" expanded="True">
-            <Node name="FrostAura.Intelligence.Iluvatar.Shared" expanded="True">
-              <Node name="Models" expanded="True">
-                <Node name="Config" expanded="True">
-                  <Node name="OpenAIConfig.cs" selected="True" />
-                </Node>
-              </Node>
+          <Node name="FrostAura.Intelligence.Iluvatar">
+            <Node name="FrostAura.Intelligence.Iluvatar.Telegram" expanded="True">
+              <Node name="Managers" expanded="True" />
+              <Node name="appsettings.development.json" selected="True" />
             </Node>
-            <Node name="FrostAura.Intelligence.Iluvatar.Telegram" expanded="True" />
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.Breakpoints />
-  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.FrostAura.Intelligence.Iluvatar.Telegram PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/dean.martin/Documents/dev/p/fa.intelligence.iluvatar/src/FrostAura.Intelligence.Iluvatar.Telegram/Managers/TelegramManager.cs" relfile="FrostAura.Intelligence.Iluvatar.Telegram/Managers/TelegramManager.cs" line="120" column="1" />
+      <Breakpoint file="/Users/dean.martin/Documents/dev/p/fa.intelligence.iluvatar/src/FrostAura.Intelligence.Iluvatar.Telegram/Managers/TelegramManager.cs" relfile="FrostAura.Intelligence.Iluvatar.Telegram/Managers/TelegramManager.cs" line="118" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>
