@@ -1,19 +1,19 @@
-# fa.intelligence.iluvatar
-![Picture of Iluvatar](https://github.com/faGH/fa.intelligence.iluvatar/blob/main/src/icon.png?raw=true)
+# fa.intelligence.legion
+![Picture of Legion](https://github.com/faGH/fa.intelligence.legion/blob/main/src/icon.png?raw=true)
 ## Description
-An autonomous general purpose, multi-modal agent with a Telegram bot interface.
+FrostAura's Legion is a dotnet-based state-of-the-art multi-agent LLM framework.
 
 ## Status
 | Project | Status | Platform
 | --- | --- | --- |
-| FrostAura Iluvatar Containerization | [![Containerization Workflow](https://github.com/faGH/fa.intelligence.iluvatar/actions/workflows/containerization_workflow.yml/badge.svg)](https://github.com/faGH/fa.intelligence.iluvatar/actions/workflows/containerization_workflow.yml) | GitHub Actions
-| FrostAura Iluvatar Docker | [![Docker Badge](https://dockeri.co/image/frostaura/iluvatar)](https://dockeri.co/image/frostaura/iluvatar) | Docker Hub 
+| FrostAura Legion Containerization | [![Containerization Workflow](https://github.com/faGH/fa.intelligence.legion/actions/workflows/containerization_workflow.yml/badge.svg)](https://github.com/faGH/fa.intelligence.legion/actions/workflows/containerization_workflow.yml) | GitHub Actions
+| FrostAura Legion Docker | [![Docker Badge](https://dockeri.co/image/frostaura/legion)](https://dockeri.co/image/frostaura/legion) | Docker Hub 
 
 ## Getting Started
 ### Requirements for Development
 - Dotnet 7 SDK
-- Visual Studio / Visual Studio Code
-### Just Run Iluvatar
+- Visual Studio / Visual Studio Code (with the C# extension)
+### Just Run Legion
 For this option, [Docker](https://docs.docker.com/get-docker/) should be installed and running on the host computer then, in the root of the project, open a terminal and start Iluvatar using Docker Compose via a single command.
 ```bash
 docker-compose up
