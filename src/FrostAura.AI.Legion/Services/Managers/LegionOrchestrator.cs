@@ -15,15 +15,21 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// The conversational stream.
 	/// </summary>
 	private readonly IStream<StreamMessage> _stream;
+	/// <summary>
+	/// The large language model instance.
+	/// </summary>
+	private readonly ILargeLanguageModel _largeLanguageModel;
 
 	/// <summary>
 	/// Overloaded constructor for injecting dependencies.
 	/// </summary>
 	/// <param name="stream">The conversational stream.</param>
-	public LegionOrchestrator(IStream<StreamMessage> stream)
+	/// <param name="largeLanguageModel">The large language model instance.</param>
+	public LegionOrchestrator(IStream<StreamMessage> stream, ILargeLanguageModel largeLanguageModel)
 	{
 		_stream = stream.ThrowIfNull(nameof(stream));
 		_stream.Subscribe(HandleMessageAsync);
+		_largeLanguageModel = largeLanguageModel.ThrowIfNull(nameof(largeLanguageModel));
 	}
 
 	/// <summary>
@@ -67,7 +73,18 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	{
 		if (message.Type == MessageDirection.Response) return;
 
+		// TODO: LLM things here...
+
 		Console.WriteLine($"Message received.");
+		await _largeLanguageModel.ChatAsync(new List<MessageContent>
+		{
+			new MessageContent
+			{
+				ActorType = Actor.User,
+				ContentType = ContentType.Text,
+				Content = message.Request.Content.Last().Content
+			}
+		}, token);
 		// TODO: This is where we should register the selector / caption agent.
 		await _stream.PostAsync(new StreamMessage
 		{

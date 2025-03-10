@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
 		return services
 			.AddSingleton<ISemanticOrchestrator, LegionOrchestrator>()
 			.AddSingleton<IStream<StreamMessage>, InMemoryStream>()
+			.AddSingleton<ILargeLanguageModel, OllamaLargeLanguageModel>()
 			.AddLogging();
 	}
 }

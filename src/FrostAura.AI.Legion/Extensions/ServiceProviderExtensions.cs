@@ -1,4 +1,5 @@
 ﻿using FrostAura.AI.Legion.Interfaces.Managers;
+using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FrostAura.AI.Legion.Extensions;
@@ -15,6 +16,8 @@ public static class ServiceProviderExtensions
 	/// <returns>The Legion instance.</returns>
 	public static ISemanticOrchestrator GetLegionInstance(this ServiceProvider provider)
 	{
-		throw new NotImplementedException();
+		return provider
+			.GetService<ISemanticOrchestrator>()
+			.ThrowIfNull(nameof(ISemanticOrchestrator));
 	}
 }
