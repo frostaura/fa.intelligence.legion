@@ -35,11 +35,11 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 	{
 		var models = await _ollama.Models.ListModelsAsync();
 
-		await _ollama.Models.PullModelAsync("all-minilm").EnsureSuccessAsync();
+		await _ollama.Models.PullModelAsync("nomic-embed-text").EnsureSuccessAsync();
 
 		// Generating an embedding
 		var embedding = await _ollama.Embeddings.GenerateEmbeddingAsync(
-			model: "all-minilm",
+			model: "nomic-embed-text",
 			prompt: "hello");
 
 		// Streaming a completion directly into the console
