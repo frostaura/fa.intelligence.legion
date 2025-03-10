@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.40.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+		<PackageReference Include="FrostAura.Libraries.Core" Version="7.1.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="Extensions\" />
+		<None Remove="Interfaces\" />
+		<None Remove="Interfaces\Managers\" />
+		<None Remove="Interfaces\Engines\" />
+		<None Remove="Interfaces\Data\" />
+		<None Remove="Services\" />
+		<None Remove="Services\Data\" />
+		<None Remove="Services\Engines\" />
+		<None Remove="Services\Managers\" />
+		<None Remove="Models\" />
+		<None Remove="Models\Communication\" />
+		<None Remove="Models\Common\" />
+		<None Remove="Enums\" />
+		<None Remove="Enums\Communication\" />
+		<None Remove="Extensions\Models\" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Extensions\" />
+		<Folder Include="Interfaces\" />
+		<Folder Include="Interfaces\Managers\" />
+		<Folder Include="Interfaces\Engines\" />
+		<Folder Include="Interfaces\Data\" />
+		<Folder Include="Services\" />
+		<Folder Include="Services\Data\" />
+		<Folder Include="Services\Engines\" />
+		<Folder Include="Services\Managers\" />
+		<Folder Include="Models\" />
+		<Folder Include="Models\Communication\" />
+		<Folder Include="Models\Common\" />
+		<Folder Include="Enums\" />
+		<Folder Include="Enums\Communication\" />
+		<Folder Include="Extensions\Models\" />
+	</ItemGroup>
+</Project>

@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1706.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.AI.Legion.Tests.T3", "..\test\FrostAura.AI.Legion.Tests.T3\FrostAura.AI.Legion.Tests.T3.csproj", "{D3D49BAC-24E1-4F40-844A-D54B4F20023F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.AI.Legion", "FrostAura.AI.Legion\FrostAura.AI.Legion.csproj", "{39291BE7-6B42-4C62-A83F-2CA874D506FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.AI.Legion.Tests.T1", "..\test\FrostAura.AI.Legion.Tests.T1\FrostAura.AI.Legion.Tests.T1.csproj", "{66492B85-FCF4-4F25-9006-1371F8165034}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAuta.AI.Legion.Examples", "FrostAuta.AI.Legion.Examples\FrostAuta.AI.Legion.Examples.csproj", "{449A1747-1D44-45E8-B48A-A90E3BB18B03}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3D49BAC-24E1-4F40-844A-D54B4F20023F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3D49BAC-24E1-4F40-844A-D54B4F20023F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3D49BAC-24E1-4F40-844A-D54B4F20023F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3D49BAC-24E1-4F40-844A-D54B4F20023F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39291BE7-6B42-4C62-A83F-2CA874D506FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39291BE7-6B42-4C62-A83F-2CA874D506FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39291BE7-6B42-4C62-A83F-2CA874D506FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39291BE7-6B42-4C62-A83F-2CA874D506FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66492B85-FCF4-4F25-9006-1371F8165034}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66492B85-FCF4-4F25-9006-1371F8165034}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66492B85-FCF4-4F25-9006-1371F8165034}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66492B85-FCF4-4F25-9006-1371F8165034}.Release|Any CPU.Build.0 = Release|Any CPU
+		{449A1747-1D44-45E8-B48A-A90E3BB18B03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{449A1747-1D44-45E8-B48A-A90E3BB18B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{449A1747-1D44-45E8-B48A-A90E3BB18B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{449A1747-1D44-45E8-B48A-A90E3BB18B03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C847C6A-AE68-441A-B79A-F3B8BC0AE6C8}
+	EndGlobalSection
+EndGlobal

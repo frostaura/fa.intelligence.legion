@@ -1,0 +1,21 @@
+﻿/*
+ * Nuget Dependencies:
+ * -------------------
+ * dotnet add package FrostAura.AI.Legion
+ * dotnet add package Microsoft.SemanticKernel.Abstractions (For custom functions)
+ * 
+ * Configuration:
+ * --------------
+ * appsettings.json or via environment variables (.env file).
+ */
+using FrostAura.AI.Legion.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+
+// Create dependency injection service collection (standard practice).
+var legion = new ServiceCollection()
+	.AddLegion()
+	.BuildServiceProvider()
+	.GetLegionInstance();
+
+Console.Write("Your Query: ");
+Console.WriteLine(await legion.ChatAsync(Console.ReadLine(), CancellationToken.None));

@@ -19,3 +19,4 @@ src/data/photo_*.png
 src/data/voicenote_*.mp3
 src/FrostAura.Intelligence.Legion.Telegram/appsettings.development.json
 **/.vs/**
+.DS_Store
