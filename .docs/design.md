@@ -18,9 +18,9 @@ The architecture of the solution is a layered one. Specifically 3 layers deep. T
 ### Design Documentation
 | Content | Description
 | -- | -- |
-| [Use Cases](./design.use_cases.md) | Use case diagram(s).
-| [High-Level](./design.high_level.md) | High-level system components.
-| [Class Diagrams](./design.class.md) | Class diagram(s).
-| [Sequence Diagrams](./design.sequence.md) | Sequence diagram(s).
+| [Use Cases](./designs/design.use_cases.md) | Use case diagram(s).
+| [High-Level](./designs/design.high_level.md) | High-level system components.
+| [Class Diagrams](./designs/design.class.md) | Class diagram(s).
+| [Sequence Diagrams](./designs/design.sequence.md) | Sequence diagram(s).
 
 [<< Back](../README.md)

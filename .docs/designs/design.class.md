@@ -30,4 +30,4 @@ A description for the example public function.
 ### Model1
 Model 1 description
 
-[<< Back](./design.md)
+[<< Back](./../design.md)

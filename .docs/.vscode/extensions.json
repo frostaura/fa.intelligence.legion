@@ -1,8 +1,8 @@
 {
 	"recommendations": [
-                "ms-python.python",
-                "kevinrose.vsc-python-indent",
-                "ms-toolsai.jupyter",
-                "oderwat.indent-rainbow"
+        "oderwat.indent-rainbow",
+        "hediet.vscode-drawio",
+        "ms-dotnettools.csde",
+        "gruntfuggly.todo-tree"
 	]
 }

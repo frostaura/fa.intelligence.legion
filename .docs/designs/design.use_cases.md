@@ -5,4 +5,4 @@
 ## Example Use Case
 A description of the example use case goes here.
 
-[<< Back](./design.md)
+[<< Back](./../design.md)
