@@ -1,5 +1,5 @@
 # fa.intelligence.legion
-![Picture of Legion](https://github.com/faGH/fa.intelligence.legion/blob/main/src/icon.JPG?raw=true)
+![Picture of Legion](https://github.com/faGH/fa.intelligence.legion/blob/main/.docs/icon.png?raw=true)
 ## Description
 FrostAura's Legion is a dotnet-based (C#) state-of-the-art multi-agent LLM framework.
 
