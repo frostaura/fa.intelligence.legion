@@ -1,4 +1,4 @@
-﻿using FrostAura.AI.Legion.Models.Communication;
+﻿using Ollama;
 
 namespace FrostAura.AI.Legion.Models.Common;
 
@@ -10,5 +10,5 @@ public class LegionRequest
 	/// <summary>
 	/// The request content
 	/// </summary>
-	public List<MessageContent> Content { get; set; } = new List<MessageContent>();
+	public List<Message> Content { get; set; } = new List<Message>();
 }

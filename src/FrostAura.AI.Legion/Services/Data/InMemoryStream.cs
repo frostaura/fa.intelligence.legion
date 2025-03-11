@@ -1,6 +1,7 @@
 ﻿using FrostAura.AI.Legion.Enums.Communication;
 using FrostAura.AI.Legion.Interfaces.Data;
 using FrostAura.AI.Legion.Models.Communication;
+using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
 
 namespace FrostAura.AI.Legion.Services.Data;
@@ -33,7 +34,7 @@ public class InMemoryStream : IStream<StreamMessage>
 	/// <param name="logger">Instance logger.</param>
 	public InMemoryStream(ILogger<InMemoryStream> logger)
 	{
-		_logger = logger;
+		_logger = logger.ThrowIfNull(nameof(logger));
 		_streamChanged -= ProcessResponseMessage;
 		_streamChanged += ProcessResponseMessage;
 	}
@@ -47,7 +48,7 @@ public class InMemoryStream : IStream<StreamMessage>
 		_streamChanged -= resolver;
 		_streamChanged += resolver;
 
-		_logger.LogDebug($"[{nameof(InMemoryStream)}] Subscribed successfully.");
+		_logger.LogDebug("[{ClassName}] Subscribed successfully.", nameof(InMemoryStream));
 	}
 
 	/// <summary>
@@ -58,12 +59,12 @@ public class InMemoryStream : IStream<StreamMessage>
 	/// <returns>The response from the stream. Typically as resolved by other subscribed entities.</returns>
 	public async Task<StreamMessage> PostAsync(StreamMessage message, CancellationToken token)
 	{
-		_logger.LogDebug($"[{nameof(InMemoryStream)}] Posting to the stream.");
+		_logger.LogDebug("[{ClassName}] Posting to the stream.", nameof(InMemoryStream));
 		_stream.Add(message);
 
 		if (message.Type == MessageDirection.Request)
 		{
-			_logger.LogDebug($"[{nameof(InMemoryStream)}] Registering completion source.");
+			_logger.LogDebug("[{ClassName}] Registering completion source.", nameof(InMemoryStream));
 			_pendingRequestMessages[message.ConversationId] = new TaskCompletionSource<StreamMessage>();
 		}
 
@@ -73,7 +74,7 @@ public class InMemoryStream : IStream<StreamMessage>
 		var tasks = handlers
 			.Select(handler => handler(message, token));
 
-		_logger.LogDebug($"[{nameof(InMemoryStream)}] Triggering all event listeners.");
+		_logger.LogDebug("[{ClassName}] Triggering all event listeners.", nameof(InMemoryStream));
 		await Task.WhenAll(tasks);
 
 		if (message.Type == MessageDirection.Response) return message;
@@ -97,7 +98,7 @@ public class InMemoryStream : IStream<StreamMessage>
 		if (requestMessage == default) return;
 		if (!_pendingRequestMessages.ContainsKey(message.ConversationId)) return;
 
-		_logger.LogDebug($"[{nameof(InMemoryStream)}] Handling response message for conversation id {message.ConversationId}.");
+		_logger.LogDebug("[{ClassName}] Handling response message for conversation id {MessageConversationId}.", nameof(InMemoryStream), message.ConversationId);
 		_pendingRequestMessages[message.ConversationId]
 			.SetResult(message);
 	}

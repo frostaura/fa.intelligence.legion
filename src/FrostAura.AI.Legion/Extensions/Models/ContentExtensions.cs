@@ -1,6 +1,5 @@
-﻿using FrostAura.AI.Legion.Enums.Communication;
-using FrostAura.AI.Legion.Models.Common;
-using FrostAura.AI.Legion.Models.Communication;
+﻿using FrostAura.AI.Legion.Models.Common;
+using Ollama;
 
 namespace FrostAura.AI.Legion.Extensions.Models;
 
@@ -20,9 +19,9 @@ public static class ContentExtensions
 		{
 			Content =
 			{
-				new MessageContent
+				new Message
 				{
-					ContentType = ContentType.Text,
+					Role = MessageRole.User,
 					Content = query
 				}
 			}

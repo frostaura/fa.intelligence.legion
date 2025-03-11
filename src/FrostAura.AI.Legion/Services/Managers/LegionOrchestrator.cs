@@ -5,6 +5,8 @@ using FrostAura.AI.Legion.Interfaces.Managers;
 using FrostAura.AI.Legion.Models.Common;
 using FrostAura.AI.Legion.Models.Communication;
 using FrostAura.Libraries.Core.Extensions.Validation;
+using Microsoft.Extensions.Logging;
+using Ollama;
 
 /// <summary>
 /// The main entry point to the Legion system.
@@ -19,14 +21,19 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// The large language model instance.
 	/// </summary>
 	private readonly ILargeLanguageModel _largeLanguageModel;
+	/// <summary>
+	/// Instance logger.
+	/// </summary>
+	private readonly ILogger _logger;
 
 	/// <summary>
 	/// Overloaded constructor for injecting dependencies.
 	/// </summary>
 	/// <param name="stream">The conversational stream.</param>
 	/// <param name="largeLanguageModel">The large language model instance.</param>
-	public LegionOrchestrator(IStream<StreamMessage> stream, ILargeLanguageModel largeLanguageModel)
+	public LegionOrchestrator(IStream<StreamMessage> stream, ILargeLanguageModel largeLanguageModel, ILogger<LegionOrchestrator> logger)
 	{
+		_logger = logger.ThrowIfNull(nameof(logger));
 		_stream = stream.ThrowIfNull(nameof(stream));
 		_stream.Subscribe(HandleMessageAsync);
 		_largeLanguageModel = largeLanguageModel.ThrowIfNull(nameof(largeLanguageModel));
@@ -40,6 +47,8 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// <returns>The response from the Legion system.</returns>
 	public async Task<LegionResponse> ChatAsync(LegionRequest request, CancellationToken token)
 	{
+		_logger.LogDebug("[{ClassName}] Initiating a chat with message '{MessageContent}'.", nameof(LegionOrchestrator), request.Content.Last().Content);
+
 		var responeMessage = await _stream.PostAsync(new StreamMessage
 		{
 			Request = request
@@ -56,6 +65,8 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// <returns>The text response from the Legion system.</returns>
 	public async Task<string> ChatAsync(string request, CancellationToken token)
 	{
+		_logger.LogDebug("[{ClassName}] Initiating a simplified chat with message '{MessageContent}'.", nameof(LegionOrchestrator), request);
+
 		var response = await ChatAsync(request.ToLegionRequest(), token);
 
 		return response
@@ -73,18 +84,10 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	{
 		if (message.Type == MessageDirection.Response) return;
 
-		// TODO: LLM things here...
+		_logger.LogDebug("[{ClassName}] Processing new incoming request message '{MessageContent}'.", nameof(LegionOrchestrator), message.Request.Content.Last().Content);
 
-		Console.WriteLine($"Message received.");
-		await _largeLanguageModel.ChatAsync(new List<MessageContent>
-		{
-			new MessageContent
-			{
-				ActorType = Actor.User,
-				ContentType = ContentType.Text,
-				Content = message.Request.Content.Last().Content
-			}
-		}, token);
+		var response = await _largeLanguageModel.ChatAsync(message.Request.Content, token);
+
 		// TODO: This is where we should register the selector / caption agent.
 		await _stream.PostAsync(new StreamMessage
 		{
@@ -92,12 +95,12 @@ public class LegionOrchestrator : ISemanticOrchestrator
 			ConversationId = message.ConversationId,
 			Response = new LegionResponse
 			{
-				Content = new List<MessageContent>
+				Content = new List<Message>
 				{
-					new MessageContent
+					new Message
 					{
-						ContentType = ContentType.Text,
-						Content = "Exmple response"
+						Role = MessageRole.Assistant,
+						Content = response.Last().Content
 					}
 				}
 			}

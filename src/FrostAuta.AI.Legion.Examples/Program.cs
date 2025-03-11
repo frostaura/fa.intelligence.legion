@@ -20,3 +20,4 @@ var legion = new ServiceCollection()
 Console.Write("Your Query: ");
 var query = "What is the meaning of life?";// Console.ReadLine();
 Console.WriteLine(await legion.ChatAsync(query, CancellationToken.None));
+Console.ReadLine();
