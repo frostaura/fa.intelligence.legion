@@ -43,9 +43,9 @@ var legion = new ServiceCollection()
 	.BuildServiceProvider()
 	.GetLegionInstance();
 
-// This could be Console.ReadLine() for example in the event that we need user input.
 Console.Write("Your Query: ");
 
+// This could be Console.ReadLine() for example in the event that we need user input.
 var query = "What is the meaning of life?";
 var response = await legion.ChatAsync(query, CancellationToken.None);
 
