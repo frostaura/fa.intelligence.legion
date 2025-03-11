@@ -3,6 +3,7 @@ using FrostAura.AI.Legion.Interfaces.Managers;
 using FrostAura.AI.Legion.Models.Communication;
 using FrostAura.AI.Legion.Services.Data;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FrostAura.AI.Legion.Extensions;
 
@@ -22,6 +23,10 @@ public static class ServiceCollectionExtensions
 			.AddSingleton<ISemanticOrchestrator, LegionOrchestrator>()
 			.AddSingleton<IStream<StreamMessage>, InMemoryStream>()
 			.AddSingleton<ILargeLanguageModel, OllamaLargeLanguageModel>()
-			.AddLogging();
+			.AddLogging(builder =>
+			{
+				builder.AddConsole();
+				builder.SetMinimumLevel(LogLevel.Debug);
+			});
 	}
 }
