@@ -2,7 +2,6 @@
  * Nuget Dependencies:
  * -------------------
  * dotnet add package FrostAura.AI.Legion
- * dotnet add package Microsoft.SemanticKernel.Abstractions (For custom functions)
  * 
  * Configuration:
  * --------------

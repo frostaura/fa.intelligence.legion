@@ -20,7 +20,38 @@ docker-compose up
 ```
 Ensure that you set the required variables in the `.env` file, in order for the docker-compose to work.
 ### Run Legion Programatically
-TODO: Document Legion usage.
+```csharp
+/*
+ * Nuget Dependencies:
+ * -------------------
+ * dotnet add package FrostAura.AI.Legion
+ * 
+ * Configuration:
+ * --------------
+ * appsettings.json or via environment variables (.env file).
+ */
+using FrostAura.AI.Legion.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+
+/*
+ * Create dependency injection service collection (standard practice).
+ *
+ * NOTE: If you have an already-bootstrapped dotnet project, ensure you call AddLegion() to your existing service collection.
+ */
+var legion = new ServiceCollection()
+	.AddLegion()
+	.BuildServiceProvider()
+	.GetLegionInstance();
+
+// This could be Console.ReadLine() for example in the event that we need user input.
+Console.Write("Your Query: ");
+
+var query = "What is the meaning of life?";
+var response = await legion.ChatAsync(query, CancellationToken.None);
+
+Console.WriteLine(response);
+Console.ReadLine();
+```
 
 ## Documentation
 | Content | Description
