@@ -22,6 +22,10 @@ Ensure that you set the required variables in the `.env` file, in order for the 
 ### Run Legion Programatically
 Currently Legion is configured to leverage a locally-running [Ollama](https://ollama.com) server.
 
+`TODO: Add config support and document an example.`
+
+`TODO: Add status updating support and documentation.`
+
 `TODO: Add support and documentation for configuration of a custom Ollama endpoint as well as typical OpenAI support.`
 ```csharp
 /*
