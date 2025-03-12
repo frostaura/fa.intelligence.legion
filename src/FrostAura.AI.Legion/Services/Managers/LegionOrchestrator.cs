@@ -47,7 +47,7 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// <returns>The response from the Legion system.</returns>
 	public async Task<LegionResponse> ChatAsync(LegionRequest request, CancellationToken token)
 	{
-		_logger.LogDebug("[{ClassName}] Initiating a chat with message '{MessageContent}'.", nameof(LegionOrchestrator), request.Content.Last().Content);
+		_logger.LogDebug("[{ClassName}][{MethodName}] Initiating a chat with message '{MessageContent}'.", nameof(LegionOrchestrator), nameof(ChatAsync), request.Content.Last().Content);
 
 		var responeMessage = await _stream.PostAsync(new StreamMessage
 		{
@@ -65,7 +65,7 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// <returns>The text response from the Legion system.</returns>
 	public async Task<string> ChatAsync(string request, CancellationToken token)
 	{
-		_logger.LogDebug("[{ClassName}] Initiating a simplified chat with message '{MessageContent}'.", nameof(LegionOrchestrator), request);
+		_logger.LogDebug("[{ClassName}][{MethodName}] Initiating a simplified chat with message '{MessageContent}'.", nameof(LegionOrchestrator), nameof(ChatAsync), request);
 
 		var response = await ChatAsync(request.ToLegionRequest(), token);
 
@@ -84,9 +84,10 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	{
 		if (message.Type == MessageDirection.Response) return;
 
-		_logger.LogDebug("[{ClassName}] Processing new incoming request message '{MessageContent}'.", nameof(LegionOrchestrator), message.Request.Content.Last().Content);
+		_logger.LogDebug("[{ClassName}][{MethodName}] Processing new incoming request message '{MessageContent}'.", nameof(LegionOrchestrator), nameof(HandleMessageAsync), message.Request.Content.Last().Content);
 
-		var response = await _largeLanguageModel.ChatAsync(message.Request.Content, token);
+		var tools = new List<Tool>();
+		var response = await _largeLanguageModel.ChatAsync(message.Request.Content, tools, token);
 
 		// TODO: This is where we should register the selector / caption agent.
 		await _stream.PostAsync(new StreamMessage

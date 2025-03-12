@@ -36,13 +36,14 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 	/// Initiate a chat with the large language model.
 	/// </summary>
 	/// <param name="messages">A collection of previous messages.</param>
+	/// <param name="tools">Tools to expose to the language model. An empty array is acceptable.</param>
 	/// <param name="token">Token to cancel downstream operations.</param>
 	/// <returns>The new conversation history with the latest resonse as the latest response.</returns>
-	public async Task<List<Message>> ChatAsync(List<Message> messages, CancellationToken token)
+	public async Task<List<Message>> ChatAsync(List<Message> messages, List<Tool> tools, CancellationToken token)
 	{
 		var modelName = "llama3.2-vision:11b";
 
-		_logger.LogDebug("[{ClassName}] Initiating chat with message '{MessageContent}' with model '{ModelName}'.", nameof(OllamaLargeLanguageModel), messages.Last().Content, modelName);
+		_logger.LogDebug("[{ClassName}][{MethodName}] Initiating chat with message '{MessageContent}', {MessageCount} message(s) total, with model '{ModelName}' with {ToolsCount} tool(s).", nameof(OllamaLargeLanguageModel), nameof(ChatAsync), messages.Last().Content, messages.Count, modelName, tools.Count);
 		await _ollama
 			.Models
 			.PullModelAsync(modelName)
@@ -53,7 +54,8 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 			.GenerateChatCompletionAsync(new GenerateChatCompletionRequest
 			{
 				Model = modelName,
-				Messages = messages
+				Messages = messages,
+				Tools = tools
 			}, token);
 
 		return messages
@@ -71,7 +73,7 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 	{
 		var modelName = "nomic-embed-text";
 
-		_logger.LogDebug("[{ClassName}] Embedding text '{MessageContent}' with model '{ModelName}'.", nameof(OllamaLargeLanguageModel), text, modelName);
+		_logger.LogDebug("[{ClassName}][{MethodName}] Embedding text '{MessageContent}' with model '{ModelName}'.", nameof(OllamaLargeLanguageModel), nameof(EmbedAsync), text, modelName);
 		await _ollama.Models.PullModelAsync("nomic-embed-text").EnsureSuccessAsync();
 
 		var embedding = await _ollama.Embeddings.GenerateEmbeddingAsync(
@@ -88,7 +90,7 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 	/// </summary>
 	public void Dispose()
 	{
-		_logger.LogDebug("[{ClassName}] Disposing object.", nameof(OllamaLargeLanguageModel));
+		_logger.LogDebug("[{ClassName}][{MethodName}] Disposing. unmanaged resource(s).", nameof(OllamaLargeLanguageModel), nameof(Dispose));
 		_ollama.Dispose();
 	}
 }

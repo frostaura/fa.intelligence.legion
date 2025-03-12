@@ -48,7 +48,7 @@ public class InMemoryStream : IStream<StreamMessage>
 		_streamChanged -= resolver;
 		_streamChanged += resolver;
 
-		_logger.LogDebug("[{ClassName}] Subscribed successfully.", nameof(InMemoryStream));
+		_logger.LogDebug("[{ClassName}][{MethodName}] Subscribed to the event steam successfully.", nameof(InMemoryStream), nameof(Subscribe));
 	}
 
 	/// <summary>
@@ -59,12 +59,12 @@ public class InMemoryStream : IStream<StreamMessage>
 	/// <returns>The response from the stream. Typically as resolved by other subscribed entities.</returns>
 	public async Task<StreamMessage> PostAsync(StreamMessage message, CancellationToken token)
 	{
-		_logger.LogDebug("[{ClassName}] Posting to the stream.", nameof(InMemoryStream));
+		_logger.LogDebug("[{ClassName}][{MethodName}] Posting a new message to the stream.", nameof(InMemoryStream), nameof(PostAsync));
 		_stream.Add(message);
 
 		if (message.Type == MessageDirection.Request)
 		{
-			_logger.LogDebug("[{ClassName}] Registering completion source.", nameof(InMemoryStream));
+			_logger.LogDebug("[{ClassName}][{MethodName}] Request message detected, registering task completion source for conversation id {MessageConversationId}.", nameof(InMemoryStream), nameof(PostAsync), message.ConversationId);
 			_pendingRequestMessages[message.ConversationId] = new TaskCompletionSource<StreamMessage>();
 		}
 
@@ -74,7 +74,7 @@ public class InMemoryStream : IStream<StreamMessage>
 		var tasks = handlers
 			.Select(handler => handler(message, token));
 
-		_logger.LogDebug("[{ClassName}] Triggering all event listeners.", nameof(InMemoryStream));
+		_logger.LogDebug("[{ClassName}][{MethodName}] Triggering all stream event listeners in parallel.", nameof(InMemoryStream), nameof(PostAsync));
 		await Task.WhenAll(tasks);
 
 		if (message.Type == MessageDirection.Response) return message;
@@ -98,7 +98,7 @@ public class InMemoryStream : IStream<StreamMessage>
 		if (requestMessage == default) return;
 		if (!_pendingRequestMessages.ContainsKey(message.ConversationId)) return;
 
-		_logger.LogDebug("[{ClassName}] Handling response message for conversation id {MessageConversationId}.", nameof(InMemoryStream), message.ConversationId);
+		_logger.LogDebug("[{ClassName}][{MethodName}] Processing response message for conversation id {MessageConversationId}.", nameof(InMemoryStream), nameof(ProcessResponseMessage), message.ConversationId);
 		_pendingRequestMessages[message.ConversationId]
 			.SetResult(message);
 	}
