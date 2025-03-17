@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
 	{
 		return services
 			.AddConfiguration()
+			.AddHttpClient()
 			.AddSingleton<ISemanticOrchestrator, LegionOrchestrator>()
 			.AddSingleton<IStream<StreamMessage>, InMemoryStream>()
 			.AddSingleton<ILargeLanguageModel, OllamaLargeLanguageModel>()

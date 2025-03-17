@@ -1,4 +1,5 @@
-﻿using FrostAura.AI.Legion.Enums.Communication;
+﻿using System.Text.Json;
+using FrostAura.AI.Legion.Enums.Communication;
 using FrostAura.AI.Legion.Extensions.Models;
 using FrostAura.AI.Legion.Interfaces.Data;
 using FrostAura.AI.Legion.Interfaces.Managers;
@@ -86,7 +87,29 @@ public class LegionOrchestrator : ISemanticOrchestrator
 
 		_logger.LogDebug("[{ClassName}][{MethodName}] Processing new incoming request message '{MessageContent}'.", nameof(LegionOrchestrator), nameof(HandleMessageAsync), message.Request.Content.Last().Content);
 
-		var tools = new List<Tool>();
+		var tools = new List<CSharpToJsonSchema.Tool>
+		{
+			new CSharpToJsonSchema.Tool
+			{
+				Name = "get_current_time",
+				Description = "Get the current time in the user's locale.",
+				Parameters = JsonSerializer.Serialize(new
+				{
+					type = "object",
+					properties = new
+					{
+						days_of_forecast = new
+						{
+							type = "integer",
+							description = "The number of days to forecast."
+						}
+					},
+					required = new[] { "days_of_forecast" }
+				})
+			}
+		}
+		.AsOllamaTools()
+		.ToList();
 		var response = await _largeLanguageModel.ChatAsync(message.Request.Content, tools, token);
 
 		// TODO: This is where we should register the selector / caption agent.

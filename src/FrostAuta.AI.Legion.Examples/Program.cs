@@ -23,6 +23,6 @@ var legion = new ServiceCollection()
 	.GetLegionInstance();
 
 Console.Write("Your Query: ");
-var query = "What is the meaning of life?";// Console.ReadLine();
+var query = "What is the weather like for the next 5 days?";//"What is the meaning of life?";// Console.ReadLine();
 Console.WriteLine(Environment.NewLine + await legion.ChatAsync(query, CancellationToken.None));
 Console.ReadLine();
