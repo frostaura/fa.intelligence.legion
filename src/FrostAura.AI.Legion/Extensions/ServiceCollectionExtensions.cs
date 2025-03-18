@@ -1,7 +1,10 @@
-﻿using FrostAura.AI.Legion.Interfaces.Data;
+﻿using FrostAura.AI.Legion.Consts.Middleware;
+using FrostAura.AI.Legion.Interfaces.Data;
 using FrostAura.AI.Legion.Interfaces.Managers;
+using FrostAura.AI.Legion.Middleware.HTTP;
 using FrostAura.AI.Legion.Models.Communication;
 using FrostAura.AI.Legion.Services.Data;
+using FrostAura.AI.Legion.Services.Managers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,10 +25,14 @@ public static class ServiceCollectionExtensions
 	{
 		return services
 			.AddConfiguration()
-			.AddHttpClient()
+			.AddTransient<OllamaNormalizationHttpHandler>()
+			.AddHttpClient(HttpClientNames.OllamaHttpClient, client => { })
+			.AddHttpMessageHandler<OllamaNormalizationHttpHandler>()
+			.Services
 			.AddSingleton<ISemanticOrchestrator, LegionOrchestrator>()
 			.AddSingleton<IStream<StreamMessage>, InMemoryStream>()
 			.AddSingleton<ILargeLanguageModel, OllamaLargeLanguageModel>()
+			.AddSingleton<IToolOrchestrator, GatewayToolOrchestrator>()
 			.AddLogging(builder =>
 			{
 				builder.AddConsole();

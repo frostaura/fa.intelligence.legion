@@ -33,6 +33,13 @@
 		<None Remove="Enums\" />
 		<None Remove="Enums\Communication\" />
 		<None Remove="Extensions\Models\" />
+		<None Remove="Models\LanguageModels\" />
+		<None Remove="Enums\LanguageModels\" />
+		<None Remove="Extensions\LanguageModels\" />
+		<None Remove="Middleware\" />
+		<None Remove="Middleware\HTTP\" />
+		<None Remove="Consts\" />
+		<None Remove="Consts\Middleware\" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Extensions\" />
@@ -50,5 +57,12 @@
 		<Folder Include="Enums\" />
 		<Folder Include="Enums\Communication\" />
 		<Folder Include="Extensions\Models\" />
+		<Folder Include="Models\LanguageModels\" />
+		<Folder Include="Enums\LanguageModels\" />
+		<Folder Include="Extensions\LanguageModels\" />
+		<Folder Include="Middleware\" />
+		<Folder Include="Middleware\HTTP\" />
+		<Folder Include="Consts\" />
+		<Folder Include="Consts\Middleware\" />
 	</ItemGroup>
 </Project>

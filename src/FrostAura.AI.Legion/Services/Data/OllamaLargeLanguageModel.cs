@@ -1,9 +1,9 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
+﻿using FrostAura.AI.Legion.Consts.Middleware;
+using FrostAura.AI.Legion.Extensions.LanguageModels;
 using FrostAura.AI.Legion.Interfaces.Data;
+using FrostAura.AI.Legion.Interfaces.Managers;
 using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Ollama;
 
 namespace FrostAura.AI.Legion.Services.Data;
@@ -23,19 +23,25 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 	/// Instance logger.
 	/// </summary>
 	private readonly ILogger _logger;
+	/// <summary>
+	/// The orchestrator of tools.
+	/// </summary>
+	private readonly IToolOrchestrator _toolOrchestrator;
 
 	/// <summary>
 	/// Overloaded constructor for injecting dependencies.
 	/// </summary>
 	/// <param name="logger">Instance logger.</param>
-	public OllamaLargeLanguageModel(ILogger<OllamaLargeLanguageModel> logger, IHttpClientFactory clientFactory)
+	/// <param name="clientFactory">The central factory for creating HTTP clients.</param>
+	/// <param name="toolOrchestrator">The orchestrator of tools.</param>
+	public OllamaLargeLanguageModel(ILogger<OllamaLargeLanguageModel> logger, IHttpClientFactory clientFactory, IToolOrchestrator toolOrchestrator)
 	{
-		var handler = new LoggingHandler(new HttpClientHandler());
-		var client = new HttpClient(handler); //clientFactory.CreateClient()
+		var client = clientFactory.CreateClient(HttpClientNames.OllamaHttpClient);
 
 		_logger = logger.ThrowIfNull(nameof(logger));
 		_ollama = new OllamaApiClient(httpClient: client)
 			.ThrowIfNull(nameof(_ollama));
+		_toolOrchestrator = toolOrchestrator.ThrowIfNull(nameof(toolOrchestrator));
 	}
 
 	/// <summary>
@@ -45,7 +51,7 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 	/// <param name="tools">Tools to expose to the language model. An empty array is acceptable.</param>
 	/// <param name="token">Token to cancel downstream operations.</param>
 	/// <returns>The new conversation history with the latest resonse as the latest response.</returns>
-	public async Task<List<Message>> ChatAsync(List<Message> messages, List<Tool> tools, CancellationToken token)
+	public async Task<List<Message>> ChatAsync(List<Message> messages, List<Models.LanguageModels.Tool> tools, CancellationToken token)
 	{
 		var modelName = "llama3.2";
 
@@ -55,19 +61,55 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 			.PullModelAsync(modelName)
 			.EnsureSuccessAsync();
 
+		var ollamaTools = tools.AsOllamaTools();
 		var chatResponse = await _ollama
 			.Chat
 			.GenerateChatCompletionAsync(new GenerateChatCompletionRequest
 			{
 				Model = modelName,
 				Messages = messages,
-				Tools = tools
+				Tools = ollamaTools
 			}, token);
+		var localMessages = new List<Message>(messages);
 
-		// TODO: Take progress further.
+		while (chatResponse.Message?.ToolCalls?.Count > 0)
+		{
+			_logger.LogDebug("[{ClassName}][{MethodName}] Executing {ToolCount} tool(s).", nameof(OllamaLargeLanguageModel), nameof(ChatAsync), chatResponse.Message?.ToolCalls?.Count);
 
-		return messages
-			.Concat(new List<Message> { chatResponse.Message })
+			var toolExecutionTasks = chatResponse
+				.Message
+				.ToolCalls
+				.ToDictionary(tc => tc.Function?.Name, tc => _toolOrchestrator.ExecuteToolAsync(tools.First(t => t.Name == tc.Function?.Name), tc, token));
+			var toolExecutionResults = await Task.WhenAll(toolExecutionTasks.Select(tet => tet.Value));
+
+			foreach (var toolExecutionResponse in toolExecutionTasks)
+			{
+				localMessages.Add(chatResponse.Message);
+
+				var toolName = toolExecutionResponse.Key;
+				var toolResponse = toolExecutionResponse.Value.Result;
+
+				localMessages.Add(new Message
+				{
+					Role = MessageRole.Tool,
+					Content = toolResponse
+				});
+			}
+
+			chatResponse = await _ollama
+				.Chat
+				.GenerateChatCompletionAsync(new GenerateChatCompletionRequest
+				{
+					Model = modelName,
+					Messages = localMessages,
+					Tools = ollamaTools
+				}, token);
+
+			localMessages.Add(chatResponse.Message);
+		}
+
+		return localMessages
+			.Where(m => m.Role != MessageRole.Tool)
 			.ToList();
 	}
 
@@ -100,75 +142,5 @@ public class OllamaLargeLanguageModel : ILargeLanguageModel, IDisposable
 	{
 		_logger.LogDebug("[{ClassName}][{MethodName}] Disposing. unmanaged resource(s).", nameof(OllamaLargeLanguageModel), nameof(Dispose));
 		_ollama.Dispose();
-	}
-}
-
-// TODO: Migrate this middleware elsewhere.
-public class LoggingHandler : DelegatingHandler
-{
-	public LoggingHandler(HttpMessageHandler innerHandler) : base(innerHandler) { }
-
-	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-	{
-		var newRequest = request;
-
-		Console.WriteLine("Request:");
-		Console.WriteLine(request);
-
-		if (request.Content != null)
-		{
-			var reqBody = await request.Content.ReadAsStringAsync();
-			var root = JsonNode.Parse(reqBody);
-			var tools = root["tools"]?.AsArray();
-
-			if (tools != null)
-			{
-				foreach (var tool in tools)
-				{
-					var function = tool?["function"];
-
-					if (function != null)
-					{
-						// Parse the parameters string into an object
-						var parametersJson = function["parameters"]?.GetValue<string>();
-						var parsedParameters = JsonNode.Parse(parametersJson);
-						var propertiesJson = parsedParameters["properties"]?.ToString();
-
-						if (propertiesJson != null)
-						{
-							// Parse the "properties" JSON string into an object
-							var parsedProperties = JsonNode.Parse(propertiesJson);
-
-							// Replace the "properties" field in parsedParameters
-							parsedParameters["properties"] = parsedProperties;
-						}
-
-						function["parameters"] = parsedParameters;
-					}
-				}
-			}
-
-			var newRequestJsonStr = root.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
-
-			newRequest = new HttpRequestMessage(request.Method, request.RequestUri)
-			{
-				Content = new StringContent(newRequestJsonStr)
-			};
-
-			foreach (var header in request.Headers)
-			{
-				newRequest.Headers.Add(header.Key, header.Value);
-			}
-
-			Console.WriteLine(reqBody);
-		}
-
-		var response = await base.SendAsync(newRequest, cancellationToken);
-
-		Console.WriteLine("Response:");
-		Console.WriteLine(response.ToString());
-		Console.WriteLine(await response.Content.ReadAsStringAsync());
-
-		return response;
 	}
 }

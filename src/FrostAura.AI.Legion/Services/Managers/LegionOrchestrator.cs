@@ -5,9 +5,9 @@ using FrostAura.AI.Legion.Interfaces.Data;
 using FrostAura.AI.Legion.Interfaces.Managers;
 using FrostAura.AI.Legion.Models.Common;
 using FrostAura.AI.Legion.Models.Communication;
+using FrostAura.AI.Legion.Models.LanguageModels;
 using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
-using Ollama;
 
 /// <summary>
 /// The main entry point to the Legion system.
@@ -26,18 +26,24 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// Instance logger.
 	/// </summary>
 	private readonly ILogger _logger;
+	/// <summary>
+	/// The orchestrator of tools.
+	/// </summary>
+	private readonly IToolOrchestrator _toolOrchestrator;
 
 	/// <summary>
 	/// Overloaded constructor for injecting dependencies.
 	/// </summary>
 	/// <param name="stream">The conversational stream.</param>
 	/// <param name="largeLanguageModel">The large language model instance.</param>
-	public LegionOrchestrator(IStream<StreamMessage> stream, ILargeLanguageModel largeLanguageModel, ILogger<LegionOrchestrator> logger)
+	/// <param name="toolOrchestrator">The orchestrator of tools.</param>
+	public LegionOrchestrator(IStream<StreamMessage> stream, ILargeLanguageModel largeLanguageModel, ILogger<LegionOrchestrator> logger, IToolOrchestrator toolOrchestrator)
 	{
 		_logger = logger.ThrowIfNull(nameof(logger));
 		_stream = stream.ThrowIfNull(nameof(stream));
 		_stream.Subscribe(HandleMessageAsync);
 		_largeLanguageModel = largeLanguageModel.ThrowIfNull(nameof(largeLanguageModel));
+		_toolOrchestrator = toolOrchestrator.ThrowIfNull(nameof(toolOrchestrator));
 	}
 
 	/// <summary>
@@ -87,29 +93,7 @@ public class LegionOrchestrator : ISemanticOrchestrator
 
 		_logger.LogDebug("[{ClassName}][{MethodName}] Processing new incoming request message '{MessageContent}'.", nameof(LegionOrchestrator), nameof(HandleMessageAsync), message.Request.Content.Last().Content);
 
-		var tools = new List<CSharpToJsonSchema.Tool>
-		{
-			new CSharpToJsonSchema.Tool
-			{
-				Name = "get_current_time",
-				Description = "Get the current time in the user's locale.",
-				Parameters = JsonSerializer.Serialize(new
-				{
-					type = "object",
-					properties = new
-					{
-						days_of_forecast = new
-						{
-							type = "integer",
-							description = "The number of days to forecast."
-						}
-					},
-					required = new[] { "days_of_forecast" }
-				})
-			}
-		}
-		.AsOllamaTools()
-		.ToList();
+		var tools = await _toolOrchestrator.GetAvailableToolsAsync(token);
 		var response = await _largeLanguageModel.ChatAsync(message.Request.Content, tools, token);
 
 		// TODO: This is where we should register the selector / caption agent.
@@ -119,11 +103,11 @@ public class LegionOrchestrator : ISemanticOrchestrator
 			ConversationId = message.ConversationId,
 			Response = new LegionResponse
 			{
-				Content = new List<Message>
+				Content = new List<Ollama.Message>
 				{
-					new Message
+					new Ollama.Message
 					{
-						Role = MessageRole.Assistant,
+						Role = Ollama.MessageRole.Assistant,
 						Content = response.Last().Content
 					}
 				}
