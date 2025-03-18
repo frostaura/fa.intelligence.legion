@@ -26,7 +26,10 @@ public static class ServiceCollectionExtensions
 		return services
 			.AddConfiguration()
 			.AddTransient<OllamaNormalizationHttpHandler>()
-			.AddHttpClient(HttpClientNames.OllamaHttpClient, client => { })
+			.AddHttpClient(HttpClientNames.OllamaHttpClient, client =>
+			{
+				client.Timeout = TimeSpan.FromHours(1);
+			})
 			.AddHttpMessageHandler<OllamaNormalizationHttpHandler>()
 			.Services
 			.AddSingleton<ISemanticOrchestrator, LegionOrchestrator>()

@@ -1,13 +1,13 @@
-﻿using System.Text.Json;
+﻿using FrostAura.AI.Legion.Consts.Prompts;
 using FrostAura.AI.Legion.Enums.Communication;
 using FrostAura.AI.Legion.Extensions.Models;
 using FrostAura.AI.Legion.Interfaces.Data;
 using FrostAura.AI.Legion.Interfaces.Managers;
 using FrostAura.AI.Legion.Models.Common;
 using FrostAura.AI.Legion.Models.Communication;
-using FrostAura.AI.Legion.Models.LanguageModels;
 using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
+using Ollama;
 
 /// <summary>
 /// The main entry point to the Legion system.
@@ -36,6 +36,7 @@ public class LegionOrchestrator : ISemanticOrchestrator
 	/// </summary>
 	/// <param name="stream">The conversational stream.</param>
 	/// <param name="largeLanguageModel">The large language model instance.</param>
+	/// <param name="logger">Instance logger.</param>
 	/// <param name="toolOrchestrator">The orchestrator of tools.</param>
 	public LegionOrchestrator(IStream<StreamMessage> stream, ILargeLanguageModel largeLanguageModel, ILogger<LegionOrchestrator> logger, IToolOrchestrator toolOrchestrator)
 	{
@@ -94,7 +95,26 @@ public class LegionOrchestrator : ISemanticOrchestrator
 		_logger.LogDebug("[{ClassName}][{MethodName}] Processing new incoming request message '{MessageContent}'.", nameof(LegionOrchestrator), nameof(HandleMessageAsync), message.Request.Content.Last().Content);
 
 		var tools = await _toolOrchestrator.GetAvailableToolsAsync(token);
-		var response = await _largeLanguageModel.ChatAsync(message.Request.Content, tools, token);
+		var entryPrompt = LegionPrompts
+			.LEGION_ENTRY_PROMPT
+			.Replace("{QUERY}", message.Request.Content.Last().Content);
+		var queryMessage = message
+			.Request
+			.Content
+			.Last();
+		var requestMessages = message
+			.Request
+			.Content
+			.Take(message.Request.Content.Count - 1)
+			.Concat(new List<Message>
+			{ new Message
+				{
+					Role = MessageRole.User,
+					Content = entryPrompt
+				}
+			})
+			.ToList();
+		var response = await _largeLanguageModel.ChatAsync(requestMessages, tools, token);
 
 		// TODO: This is where we should register the selector / caption agent.
 		await _stream.PostAsync(new StreamMessage
@@ -103,11 +123,11 @@ public class LegionOrchestrator : ISemanticOrchestrator
 			ConversationId = message.ConversationId,
 			Response = new LegionResponse
 			{
-				Content = new List<Ollama.Message>
+				Content = new List<Message>
 				{
-					new Ollama.Message
+					new Message
 					{
-						Role = Ollama.MessageRole.Assistant,
+						Role = MessageRole.Assistant,
 						Content = response.Last().Content
 					}
 				}

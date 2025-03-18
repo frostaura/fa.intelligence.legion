@@ -1,7 +1,11 @@
-﻿using FrostAura.AI.Legion.Enums.Communication;
+﻿using System.Text.Json;
+using FrostAura.AI.Legion.Enums.Communication;
 using FrostAura.AI.Legion.Extensions.LanguageModels;
+using FrostAura.AI.Legion.Interfaces.Data;
 using FrostAura.AI.Legion.Interfaces.Managers;
 using FrostAura.AI.Legion.Models.LanguageModels;
+using FrostAura.Libraries.Core.Extensions.Validation;
+using Microsoft.Extensions.Logging;
 
 namespace FrostAura.AI.Legion.Services.Managers;
 
@@ -11,28 +15,40 @@ namespace FrostAura.AI.Legion.Services.Managers;
 public class GatewayToolOrchestrator : IToolOrchestrator
 {
 	/// <summary>
+	/// The large language model instance.
+	/// </summary>
+	private readonly ILargeLanguageModel _largeLanguageModel;
+	/// <summary>
+	/// Instance logger.
+	/// </summary>
+	private readonly ILogger _logger;
+
+	/// <summary>
+	/// Overloaded constructor for injecting dependencies.
+	/// </summary>
+	/// <param name="largeLanguageModel">The large language model instance.</param>
+	/// <param name="logger">Instance logger.</param>
+	public GatewayToolOrchestrator(ILargeLanguageModel largeLanguageModel, ILogger<GatewayToolOrchestrator> logger)
+	{
+		_logger = logger.ThrowIfNull(nameof(logger));
+		_largeLanguageModel = largeLanguageModel.ThrowIfNull(nameof(largeLanguageModel));
+	}
+
+	/// <summary>
 	/// Get a collection of the available tools.
 	/// </summary>
 	/// <param name="token">Token to cancel downstream operations.</param>
 	/// <returns>A collection of the available tools.</returns>
 	public Task<List<Tool>> GetAvailableToolsAsync(CancellationToken token)
 	{
+		_logger.LogDebug("[{ClassName}][{MethodName}] Fetching all available tools.", nameof(LegionOrchestrator), nameof(GetAvailableToolsAsync));
+
 		var tools = new List<Tool>
 		{
 			new Tool
 			{
 				Name = "get_current_time",
 				Description = "Get the current time in the user's locale.",
-				/*Parameters = new List<Parameter>
-				{
-					new Parameter
-					{
-						Name = "days_of_forecast",
-						Description = "Get the current time in the user's locale for a given period of time in days.",
-						Type = ParameterType.Integer,
-						Required = true
-					}
-				},*/
 				Function = (args, token) =>
 				{
 					return Task.FromResult(DateTime.Now.ToString());
@@ -40,15 +56,15 @@ public class GatewayToolOrchestrator : IToolOrchestrator
 			},
 			new Tool
 			{
-				Name = "get_bank_balance",
-				Description = "Get the current user's bank balance",
+				Name = "tree_planner",
+				Description = "Decompose a complex problem in a tree-like approach, solve for each node and finally return the response.",
 				Parameters = new List<Parameter>
 				{
 					new Parameter
 					{
-						Name = "bank_name",
-						Description = "FNB, for example.",
-						Type = ParameterType.Integer,
+						Name = "query",
+						Description = "The query for the problem.",
+						Type = ParameterType.String,
 						Required = true
 					}
 				},
@@ -69,8 +85,16 @@ public class GatewayToolOrchestrator : IToolOrchestrator
 	/// <param name="executionContext">The context which to execute the tool with.</param>
 	/// <param name="token">Token to cancel downstream operations.</param>
 	/// <returns>The string response from the tool's execution result.</returns>
-	public Task<string> ExecuteToolAsync(Tool tool, Ollama.ToolCall executionContext, CancellationToken token)
+	public async Task<string> ExecuteToolAsync(Tool tool, Ollama.ToolCall executionContext, CancellationToken token)
 	{
-		return tool.Function(executionContext.FromOllamaParameters(), token);
+		var parameters = executionContext.FromOllamaParameters();
+
+		_logger.LogDebug("[{ClassName}][{MethodName}] Executing tool '{ToolName}' with args: {ToolArgs}.", nameof(LegionOrchestrator), nameof(GetAvailableToolsAsync), tool.Name, JsonSerializer.Serialize(parameters));
+
+		var response = await tool.Function(parameters, token);
+
+		_logger.LogDebug("[{ClassName}][{MethodName}] Tool '{ToolName}' executed successfully. Response: {ToolResponse}", nameof(LegionOrchestrator), nameof(GetAvailableToolsAsync), tool.Name, response);
+
+		return response;
 	}
 }
